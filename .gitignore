@@ -1,0 +1,49 @@
+# ========================
+# Java / Spring Boot Backend
+# ========================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.log
+hs_err_pid*
+
+# ========================
+# Node / React Frontend
+# ========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ========================
+# IDE & Editor Files
+# ========================
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Environment / Secrets
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Test Output
+# ========================
+backend/gate*.txt
