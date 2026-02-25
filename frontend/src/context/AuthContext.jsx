@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import { parseLoginResponse } from '../utils/authUtils';
 
 const AuthContext = createContext(null);
 
@@ -19,12 +20,15 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         const response = await api.post('/auth/signin', { username, password });
-        const { token, ...userData } = response.data;
+        // Assuming ApiResponse structure returns the payload inside "data"
+        const apiResponsePayload = response.data.data ? response.data.data : response.data;
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
-        return response.data;
+        const strictUserData = parseLoginResponse(apiResponsePayload);
+
+        localStorage.setItem('token', strictUserData.token);
+        localStorage.setItem('user', JSON.stringify(strictUserData));
+        setUser(strictUserData);
+        return strictUserData;
     };
 
     const register = async (data) => {

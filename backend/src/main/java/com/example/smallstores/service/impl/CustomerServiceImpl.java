@@ -1,6 +1,7 @@
 package com.example.smallstores.service.impl;
 
 import com.example.smallstores.dto.CustomerDto;
+import com.example.smallstores.dto.PageResponseDTO;
 import com.example.smallstores.entity.Customer;
 import com.example.smallstores.entity.Store;
 import com.example.smallstores.repository.CustomerRepository;
@@ -9,6 +10,8 @@ import com.example.smallstores.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,10 +40,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerDto> getAllCustomersByStore(Long storeId) {
-        return customerRepository.findByStoreId(storeId).stream()
+    public PageResponseDTO<CustomerDto> getAllCustomersByStore(Long storeId, Pageable pageable) {
+        Page<Customer> customerPage = customerRepository.findByStoreId(storeId, pageable);
+        List<CustomerDto> content = customerPage.getContent().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+
+        return PageResponseDTO.<CustomerDto>builder()
+                .content(content)
+                .pageNumber(customerPage.getNumber())
+                .pageSize(customerPage.getSize())
+                .totalElements(customerPage.getTotalElements())
+                .totalPages(customerPage.getTotalPages())
+                .last(customerPage.isLast())
+                .build();
     }
 
     @Override

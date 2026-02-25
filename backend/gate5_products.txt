@@ -1,0 +1,85 @@
+﻿{
+    "success":  true,
+    "message":  "Operation successful",
+    "data":  {
+                 "content":  [
+                                 {
+                                     "id":  1,
+                                     "name":  "Demo Product 1",
+                                     "price":  43.00,
+                                     "stock":  352,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  2,
+                                     "name":  "Demo Product 2",
+                                     "price":  84.00,
+                                     "stock":  128,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  3,
+                                     "name":  "Demo Product 3",
+                                     "price":  36.00,
+                                     "stock":  374,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  4,
+                                     "name":  "Demo Product 4",
+                                     "price":  44.00,
+                                     "stock":  203,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  5,
+                                     "name":  "Demo Product 5",
+                                     "price":  20.00,
+                                     "stock":  289,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  6,
+                                     "name":  "Demo Product 6",
+                                     "price":  22.00,
+                                     "stock":  408,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  7,
+                                     "name":  "Demo Product 7",
+                                     "price":  84.00,
+                                     "stock":  218,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  8,
+                                     "name":  "Demo Product 8",
+                                     "price":  62.00,
+                                     "stock":  182,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  9,
+                                     "name":  "Demo Product 9",
+                                     "price":  69.00,
+                                     "stock":  324,
+                                     "category":  null
+                                 },
+                                 {
+                                     "id":  10,
+                                     "name":  "Demo Product 10",
+                                     "price":  19.00,
+                                     "stock":  116,
+                                     "category":  null
+                                 }
+                             ],
+                 "pageNumber":  0,
+                 "pageSize":  10,
+                 "totalElements":  10,
+                 "totalPages":  1,
+                 "last":  true
+             },
+    "errors":  null,
+    "timestamp":  "2026-02-25T10:28:37.7939598"
+}

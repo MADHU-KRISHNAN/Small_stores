@@ -12,6 +12,7 @@ import com.example.smallstores.repository.UserRepository;
 import com.example.smallstores.security.JwtUtils;
 import com.example.smallstores.security.UserDetailsImpl;
 import com.example.smallstores.service.AuthService;
+import com.example.smallstores.exception.UserAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,58 +30,59 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final StoreRepository storeRepository;
-    private final PasswordEncoder encoder;
-    private final JwtUtils jwtUtils;
+        private final AuthenticationManager authenticationManager;
+        private final UserRepository userRepository;
+        private final StoreRepository storeRepository;
+        private final PasswordEncoder encoder;
+        private final JwtUtils jwtUtils;
 
-    @Override
-    public JwtResponse authenticateUser(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        @Override
+        public JwtResponse authenticateUser(LoginRequest loginRequest) {
+                Authentication authentication = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                                                loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                List<String> roles = userDetails.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList());
 
-        return new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getStoreId(),
-                roles);
-    }
-
-    @Override
-    @Transactional
-    public MessageResponse registerUser(SignupRequest signUpRequest) {
-        if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()) {
-            throw new RuntimeException("Error: Username is already taken!");
+                return new JwtResponse(jwt,
+                                userDetails.getId(),
+                                userDetails.getUsername(),
+                                userDetails.getStoreId(),
+                                roles);
         }
 
-        Store store = Store.builder()
-                .storeName(signUpRequest.getStoreName())
-                .ownerName(signUpRequest.getOwnerName())
-                .email(signUpRequest.getEmail())
-                .phone(signUpRequest.getPhone())
-                .address(signUpRequest.getAddress())
-                .build();
+        @Override
+        @Transactional
+        public MessageResponse registerUser(SignupRequest signUpRequest) {
+                if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()) {
+                        throw new UserAlreadyExistsException("Error: Username is already taken!");
+                }
 
-        Store savedStore = storeRepository.save(store);
+                Store store = Store.builder()
+                                .storeName(signUpRequest.getStoreName())
+                                .ownerName(signUpRequest.getOwnerName())
+                                .email(signUpRequest.getEmail())
+                                .phone(signUpRequest.getPhone())
+                                .address(signUpRequest.getAddress())
+                                .build();
 
-        User user = User.builder()
-                .username(signUpRequest.getUsername())
-                .password(encoder.encode(signUpRequest.getPassword()))
-                .role(Role.STORE_OWNER)
-                .store(savedStore)
-                .build();
+                Store savedStore = storeRepository.save(store);
 
-        userRepository.save(user);
+                User user = User.builder()
+                                .username(signUpRequest.getUsername())
+                                .password(encoder.encode(signUpRequest.getPassword()))
+                                .role(Role.STORE_OWNER)
+                                .store(savedStore)
+                                .build();
 
-        return new MessageResponse("Store owner registered successfully!");
-    }
+                userRepository.save(user);
+
+                return new MessageResponse("Store owner registered successfully!");
+        }
 }

@@ -1,5 +1,6 @@
 package com.example.smallstores.service.impl;
 
+import com.example.smallstores.dto.PageResponseDTO;
 import com.example.smallstores.dto.ProductDto;
 import com.example.smallstores.entity.Product;
 import com.example.smallstores.entity.Store;
@@ -9,6 +10,8 @@ import com.example.smallstores.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,10 +42,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllProductsByStore(Long storeId) {
-        return productRepository.findByStoreId(storeId).stream()
+    public PageResponseDTO<ProductDto> getAllProductsByStore(Long storeId, Pageable pageable) {
+        Page<Product> productPage = productRepository.findByStoreId(storeId, pageable);
+        List<ProductDto> content = productPage.getContent().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+
+        return PageResponseDTO.<ProductDto>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
     @Override
@@ -69,6 +82,13 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long storeId, Long productId) {
         Product product = getProduct(storeId, productId);
         productRepository.delete(product);
+    }
+
+    @Override
+    public List<ProductDto> getLowStockProducts(Long storeId, Integer threshold) {
+        return productRepository.findByStoreIdAndStockLessThan(storeId, threshold).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private Product getProduct(Long storeId, Long productId) {

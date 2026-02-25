@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.smallstores.repository.UserRepository;
 
 @Component
 public class JwtUtils {
@@ -21,6 +23,9 @@ public class JwtUtils {
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Key key() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
@@ -30,10 +35,32 @@ public class JwtUtils {
 
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
+                .claim("storeId", userPrincipal.getStoreId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Long extractStoreId(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody();
+        Object storeIdClaim = claims.get("storeId");
+
+        if (storeIdClaim != null) {
+            return Long.valueOf(storeIdClaim.toString());
+        }
+
+        String username = claims.getSubject();
+        logger.warn("Legacy token detected for user: {}. No storeId claim. Falling back to DB lookup.", username);
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    if (user.getStore() != null) {
+                        return user.getStore().getId();
+                    }
+                    return null;
+                })
+                .orElseThrow(() -> new RuntimeException("Cannot resolve store for this token"));
     }
 
     public String getUserNameFromJwtToken(String token) {

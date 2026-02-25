@@ -1,23 +1,31 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { PlusIcon, TrashIcon, XMarkIcon, MagnifyingGlassIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalElements, setTotalElements] = useState(0);
+    const [size] = useState(10);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({ name: '', price: '', stock: '', category: '' });
+    const [search, setSearch] = useState('');
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+    useEffect(() => { fetchProducts(); }, [page]);
 
     const fetchProducts = async () => {
+        setLoading(true);
         try {
-            const res = await api.get('/products');
-            setProducts(res.data);
+            const res = await api.get(`/products?page=${page}&size=${size}`);
+            const responseData = res.data.data ? res.data.data : res.data;
+            setProducts(responseData.content || []);
+            setTotalPages(responseData.totalPages || 1);
+            setTotalElements(responseData.totalElements || 0);
         } catch (error) {
-            console.error("Failed to fetch products", error);
+            toast.error('Failed to load products');
         } finally {
             setLoading(false);
         }
@@ -31,81 +39,180 @@ export default function Products() {
                 price: parseFloat(formData.price),
                 stock: parseInt(formData.stock, 10)
             });
+            toast.success('Product created!');
             fetchProducts();
             setIsModalOpen(false);
             setFormData({ name: '', price: '', stock: '', category: '' });
         } catch (error) {
-            console.error("Failed to add product", error);
+            toast.error(error.response?.data?.message || 'Failed to add product');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure?")) {
-            await api.delete(`/products/${id}`);
-            fetchProducts();
+        if (window.confirm("Delete this product?")) {
+            try {
+                await api.delete(`/products/${id}`);
+                toast.success('Product deleted');
+                fetchProducts();
+            } catch (error) {
+                toast.error('Failed to delete product');
+            }
         }
     };
 
-    if (loading) return <div>Loading products...</div>;
+    const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.category || '').toLowerCase().includes(search.toLowerCase())
+    );
+
+    const getStockBadge = (stock) => {
+        if (stock === 0) return 'badge badge-danger';
+        if (stock <= 10) return 'badge badge-warning';
+        return 'badge badge-success';
+    };
+
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <div className="h-8 w-48 shimmer" />
+                    <div className="h-10 w-36 shimmer" />
+                </div>
+                <div className="glass-card-solid overflow-hidden">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-4 px-6 py-4 border-b border-surface-800/50">
+                            <div className="h-4 w-40 shimmer" />
+                            <div className="h-4 w-24 shimmer" />
+                            <div className="h-4 w-16 shimmer" />
+                            <div className="h-4 w-16 shimmer" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-semibold text-gray-900">Products Inventory</h1>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-                >
-                    <Plus className="w-4 h-4" />
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Products</h1>
+                    <p className="text-sm text-surface-400 mt-1">{totalElements} products in inventory</p>
+                </div>
+                <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center space-x-2">
+                    <PlusIcon className="w-5 h-5" />
                     <span>Add Product</span>
                 </button>
             </div>
 
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            {/* Search */}
+            <div className="flex items-center bg-surface-800/50 border border-surface-700/30 rounded-xl px-4 py-3 space-x-3 focus-within:ring-2 focus-within:ring-brand-500/30 transition-all">
+                <MagnifyingGlassIcon className="w-5 h-5 text-surface-500 flex-shrink-0" />
+                <input
+                    type="text"
+                    placeholder="Search products by name or category..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="bg-transparent text-sm text-surface-200 placeholder-surface-500 outline-none w-full"
+                />
+            </div>
+
+            {/* Table */}
+            <div className="glass-card-solid overflow-hidden">
+                <table className="table-dark">
+                    <thead>
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th className="text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {products.map((product) => (
-                            <tr key={product.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price.toFixed(2)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.stock > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                        {product.stock}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4" /></button>
+                    <tbody>
+                        {filteredProducts.length === 0 ? (
+                            <tr>
+                                <td colSpan={5}>
+                                    <div className="flex flex-col items-center justify-center py-12 text-surface-500">
+                                        <ArchiveBoxIcon className="w-12 h-12 mb-3 opacity-30" />
+                                        <p className="text-sm">No products found</p>
+                                    </div>
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            filteredProducts.map((product, index) => (
+                                <tr key={product.id} className="animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
+                                    <td>
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-9 h-9 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
+                                                <ArchiveBoxIcon className="w-4 h-4 text-brand-400" />
+                                            </div>
+                                            <span className="font-medium text-surface-200">{product.name}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className="badge badge-info">{product.category || 'Uncategorized'}</span>
+                                    </td>
+                                    <td className="text-surface-200 font-medium">${product.price.toFixed(2)}</td>
+                                    <td>
+                                        <span className={getStockBadge(product.stock)}>{product.stock} units</span>
+                                    </td>
+                                    <td className="text-right">
+                                        <button onClick={() => handleDelete(product.id)} className="btn-danger">
+                                            <TrashIcon className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
 
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-surface-500">Page {page + 1} of {totalPages}</p>
+                    <div className="flex space-x-2">
+                        <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="btn-secondary disabled:opacity-30">Previous</button>
+                        <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className="btn-secondary disabled:opacity-30">Next</button>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex flex-col items-center justify-center p-4">
-                    <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-                        <h2 className="text-xl font-bold mb-4">Add New Product</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div><label className="block text-sm font-medium text-gray-700">Name</label><input required className="mt-1 block w-full border rounded-md shadow-sm p-2" onChange={e => setFormData({ ...formData, name: e.target.value })} /></div>
-                            <div><label className="block text-sm font-medium text-gray-700">Category</label><input required className="mt-1 block w-full border rounded-md shadow-sm p-2" onChange={e => setFormData({ ...formData, category: e.target.value })} /></div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-sm font-medium text-gray-700">Price</label><input type="number" step="0.01" required className="mt-1 block w-full border rounded-md shadow-sm p-2" onChange={e => setFormData({ ...formData, price: e.target.value })} /></div>
-                                <div><label className="block text-sm font-medium text-gray-700">Stock</label><input type="number" required className="mt-1 block w-full border rounded-md shadow-sm p-2" onChange={e => setFormData({ ...formData, stock: e.target.value })} /></div>
+                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+                    <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-6 border-b border-surface-700/30">
+                            <h2 className="text-lg font-bold text-white">Add New Product</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-surface-400 hover:text-surface-200 p-1 hover:bg-surface-700/50 rounded-lg transition-colors">
+                                <XMarkIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-surface-300 mb-1.5">Product Name</label>
+                                <input required placeholder="e.g. Wireless Mouse" className="input-dark" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                             </div>
-                            <div className="flex justify-end space-x-3 mt-6">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save</button>
+                            <div>
+                                <label className="block text-sm font-medium text-surface-300 mb-1.5">Category</label>
+                                <input required placeholder="e.g. Electronics" className="input-dark" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-surface-300 mb-1.5">Price ($)</label>
+                                    <input type="number" step="0.01" required placeholder="29.99" className="input-dark" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-surface-300 mb-1.5">Stock</label>
+                                    <input type="number" required placeholder="100" className="input-dark" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} />
+                                </div>
+                            </div>
+                            <div className="flex justify-end space-x-3 pt-4 border-t border-surface-700/30">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancel</button>
+                                <button type="submit" className="btn-primary">Create Product</button>
                             </div>
                         </form>
                     </div>

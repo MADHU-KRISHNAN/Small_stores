@@ -1,53 +1,90 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Package, Users, ShoppingCart, LogOut } from 'lucide-react';
+import {
+    HomeIcon,
+    ArchiveBoxIcon,
+    UsersIcon,
+    ShoppingCartIcon,
+    ArrowRightOnRectangleIcon,
+    XMarkIcon,
+    SparklesIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: Home },
-        { name: 'Products', path: '/products', icon: Package },
-        { name: 'Customers', path: '/customers', icon: Users },
-        { name: 'Orders', path: '/orders', icon: ShoppingCart },
+        { name: 'Dashboard', path: '/dashboard', icon: HomeIcon },
+        { name: 'Products', path: '/products', icon: ArchiveBoxIcon },
+        { name: 'Customers', path: '/customers', icon: UsersIcon },
+        { name: 'Orders', path: '/orders', icon: ShoppingCartIcon },
     ];
 
     return (
-        <div className="w-64 bg-white border-r h-screen relative flex flex-col">
-            <div className="p-6">
-                <h1 className="text-2xl font-bold text-indigo-600">SmallStores</h1>
+        <aside
+            className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-surface-900 via-surface-900 to-surface-950 border-r border-surface-700/30 flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                }`}
+        >
+            {/* Logo */}
+            <div className="h-16 flex items-center justify-between px-6 border-b border-surface-700/30">
+                <Link to="/dashboard" className="flex items-center space-x-3 group">
+                    <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
+                        <SparklesIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-xl font-bold gradient-text">SmallStores</span>
+                </Link>
+                <button onClick={onClose} className="lg:hidden text-surface-400 hover:text-surface-200 p-1">
+                    <XMarkIcon className="w-5 h-5" />
+                </button>
             </div>
 
-            <nav className="flex-1 px-4 space-y-2 mt-4">
-                {navItems.map((item) => {
+            {/* Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-3">Menu</p>
+                {navItems.map((item, index) => {
                     const Icon = item.icon;
-                    const isActive = location.pathname.startsWith(item.path);
+                    const isActive = location.pathname === item.path;
                     return (
                         <Link
                             key={item.name}
                             to={item.path}
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? 'bg-indigo-50 text-indigo-600'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                            onClick={onClose}
+                            className={`group flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 relative ${isActive
+                                    ? 'bg-brand-500/10 text-brand-400'
+                                    : 'text-surface-400 hover:bg-surface-800/50 hover:text-surface-200'
                                 }`}
+                            style={{ animationDelay: `${index * 50}ms` }}
                         >
-                            <Icon className="w-5 h-5" />
-                            <span className="font-medium">{item.name}</span>
+                            {isActive && (
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-brand-400 to-brand-600 rounded-r-full" />
+                            )}
+                            <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive ? '' : 'group-hover:scale-110'}`} />
+                            <span className="font-medium text-sm">{item.name}</span>
                         </Link>
                     );
                 })}
             </nav>
 
-            <div className="p-4 border-t">
+            {/* User section + Logout */}
+            <div className="p-4 border-t border-surface-700/30 space-y-3">
+                <div className="flex items-center space-x-3 px-3 py-2">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-glow">
+                        {user?.username?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-surface-200 truncate">{user?.username}</p>
+                        <p className="text-xs text-surface-500 truncate">{user?.role?.replace('ROLE_', '')}</p>
+                    </div>
+                </div>
                 <button
                     onClick={logout}
-                    className="flex items-center space-x-3 px-4 py-3 w-full text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+                    className="flex items-center space-x-3 px-4 py-2.5 w-full text-surface-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all duration-200"
                 >
-                    <LogOut className="w-5 h-5" />
-                    <span className="font-medium">Logout</span>
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
+                    <span className="font-medium text-sm">Sign out</span>
                 </button>
             </div>
-        </div>
+        </aside>
     );
 }

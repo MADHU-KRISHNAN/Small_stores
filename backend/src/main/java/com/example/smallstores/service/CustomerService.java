@@ -1,12 +1,13 @@
 package com.example.smallstores.service;
 
 import com.example.smallstores.dto.CustomerDto;
-import java.util.List;
+import com.example.smallstores.dto.PageResponseDTO;
+import org.springframework.data.domain.Pageable;
 
 public interface CustomerService {
     CustomerDto createCustomer(Long storeId, CustomerDto customerDto);
 
-    List<CustomerDto> getAllCustomersByStore(Long storeId);
+    PageResponseDTO<CustomerDto> getAllCustomersByStore(Long storeId, Pageable pageable);
 
     CustomerDto updateCustomer(Long storeId, Long customerId, CustomerDto customerDto);
 

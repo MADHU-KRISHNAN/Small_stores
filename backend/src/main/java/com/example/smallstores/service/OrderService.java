@@ -1,12 +1,13 @@
 package com.example.smallstores.service;
 
 import com.example.smallstores.dto.OrderDto;
-import java.util.List;
+import com.example.smallstores.dto.PageResponseDTO;
+import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
     OrderDto createOrder(Long storeId, OrderDto orderDto);
 
-    List<OrderDto> getAllOrdersByStore(Long storeId);
+    PageResponseDTO<OrderDto> getAllOrdersByStore(Long storeId, Pageable pageable);
 
     OrderDto getOrderById(Long storeId, Long orderId);
 

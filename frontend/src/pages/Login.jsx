@@ -1,110 +1,219 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Store } from 'lucide-react';
+import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import toast from 'react-hot-toast';
+
+const loginSchema = yup.object().shape({
+    username: yup.string().required('Username is required'),
+    password: yup.string().required('Password is required')
+});
+
+const registerSchema = yup.object().shape({
+    storeName: yup.string().required('Store name is required'),
+    ownerName: yup.string().required('Owner name is required'),
+    email: yup.string().email('Invalid email').required('Email is required'),
+    username: yup.string().required('Username is required').min(3, 'Min 3 characters'),
+    password: yup.string().required('Password is required').min(6, 'Min 6 characters')
+});
 
 export default function Login() {
     const [isLogin, setIsLogin] = useState(true);
-    const [formData, setFormData] = useState({
-        username: '', password: '', storeName: '', ownerName: '', email: '', phone: '', address: ''
-    });
-    const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login, register } = useAuth();
+    const { login, register: registerApi } = useAuth();
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset
+    } = useForm({
+        resolver: yupResolver(isLogin ? loginSchema : registerSchema),
+        mode: 'onTouched'
+    });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    const toggleMode = (loginMode) => {
+        setIsLogin(loginMode);
+        reset();
+    };
+
+    const onSubmit = async (data) => {
         try {
             if (isLogin) {
-                await login(formData.username, formData.password);
+                await login(data.username, data.password);
+                toast.success('Welcome back!');
                 navigate('/dashboard');
             } else {
-                await register(formData);
-                setIsLogin(true); // Switch to login after successful registration
-                setError('Registration successful! Please login.');
+                await registerApi(data);
+                setIsLogin(true);
+                toast.success('Account created! Please sign in.');
+                reset();
             }
         } catch (err) {
-            setError(err.response?.data?.error || err.response?.data?.message || 'Authentication failed. Please try again.');
+            toast.error(err.response?.data?.message || 'Authentication failed');
         }
     };
 
+    const InputField = ({ label, name, type = 'text', placeholder, isPassword }) => (
+        <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-surface-300">{label}</label>
+            <div className="relative">
+                <input
+                    type={isPassword ? (showPassword ? 'text' : 'password') : type}
+                    placeholder={placeholder}
+                    {...register(name)}
+                    className={`input-dark ${errors[name] ? 'input-dark-error' : ''}`}
+                />
+                {isPassword && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-300 transition-colors"
+                    >
+                        {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                )}
+            </div>
+            {errors[name] && <p className="text-xs text-red-400 pl-1">{errors[name].message}</p>}
+        </div>
+    );
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-                <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl mb-4">
-                    <Store className="w-10 h-10 text-white" />
+        <div className="min-h-screen flex">
+            {/* Left Panel — Brand */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-brand-900 via-surface-900 to-surface-950">
+                {/* Floating shapes */}
+                <div className="absolute top-20 left-20 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
+                <div className="absolute bottom-32 right-16 w-96 h-96 bg-brand-600/8 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-brand-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
+
+                {/* Grid pattern */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{
+                    backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+                    backgroundSize: '60px 60px'
+                }} />
+
+                {/* Content */}
+                <div className="relative z-10 flex flex-col justify-center px-16 xl:px-24">
+                    <div className="flex items-center space-x-3 mb-8">
+                        <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow-lg">
+                            <SparklesIcon className="w-7 h-7 text-white" />
+                        </div>
+                        <span className="text-3xl font-bold gradient-text">SmallStores</span>
+                    </div>
+
+                    <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
+                        Manage your store<br />
+                        <span className="gradient-text">like a pro.</span>
+                    </h1>
+
+                    <p className="text-lg text-surface-400 max-w-md leading-relaxed mb-10">
+                        Inventory tracking, customer management, order processing — everything you need to run your retail business, all in one beautiful dashboard.
+                    </p>
+
+                    <div className="flex items-center space-x-8">
+                        {[
+                            { value: '10K+', label: 'Products Tracked' },
+                            { value: '99.9%', label: 'Uptime' },
+                            { value: '24/7', label: 'Support' },
+                        ].map((stat) => (
+                            <div key={stat.label}>
+                                <p className="text-2xl font-bold text-white">{stat.value}</p>
+                                <p className="text-xs text-surface-500 mt-1">{stat.label}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                    SmallStores Platform
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    {isLogin ? 'Sign in to access your dashboard' : 'Register your store to get started'}
-                </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-gray-100">
+            {/* Right Panel — Auth Form */}
+            <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-surface-950">
+                <div className="w-full max-w-md animate-fade-in-up">
+                    {/* Mobile logo */}
+                    <div className="lg:hidden flex items-center justify-center space-x-3 mb-10">
+                        <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow">
+                            <SparklesIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-2xl font-bold gradient-text">SmallStores</span>
+                    </div>
 
-                    <div className="flex mb-8 bg-gray-100 p-1 rounded-lg">
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-white">
+                            {isLogin ? 'Welcome back' : 'Create your store'}
+                        </h2>
+                        <p className="text-surface-400 mt-2 text-sm">
+                            {isLogin ? 'Sign in to continue to your dashboard' : 'Get started with SmallStores for free'}
+                        </p>
+                    </div>
+
+                    {/* Tab Switcher */}
+                    <div className="flex mb-8 bg-surface-800/50 p-1 rounded-xl border border-surface-700/30">
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${isLogin ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            onClick={() => setIsLogin(true)}
+                            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${isLogin
+                                    ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/25'
+                                    : 'text-surface-400 hover:text-surface-200'
+                                }`}
+                            onClick={() => toggleMode(true)}
                         >
                             Sign In
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${!isLogin ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            onClick={() => setIsLogin(false)}
+                            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${!isLogin
+                                    ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/25'
+                                    : 'text-surface-400 hover:text-surface-200'
+                                }`}
+                            onClick={() => toggleMode(false)}
                         >
-                            Register Store
+                            Register
                         </button>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleSubmit}>
-                        {error && (
-                            <div className={`p-3 text-sm rounded-md ${error.includes('successful') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                {error}
-                            </div>
-                        )}
-
+                    <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
                         {!isLogin && (
                             <>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Store Name</label>
-                                        <input type="text" name="storeName" required={!isLogin} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onChange={handleChange} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Owner Name</label>
-                                        <input type="text" name="ownerName" required={!isLogin} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onChange={handleChange} />
-                                    </div>
+                                    <InputField label="Store Name" name="storeName" placeholder="My Store" />
+                                    <InputField label="Owner Name" name="ownerName" placeholder="John Doe" />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email address</label>
-                                    <input type="email" name="email" required={!isLogin} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onChange={handleChange} />
-                                </div>
+                                <InputField label="Email" name="email" type="email" placeholder="you@example.com" />
                             </>
                         )}
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Username</label>
-                            <input type="text" name="username" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onChange={handleChange} />
-                        </div>
+                        <InputField label="Username" name="username" placeholder="Enter username" />
+                        <InputField label="Password" name="password" placeholder="••••••••" isPassword />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" name="password" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onChange={handleChange} />
-                        </div>
+                        {isLogin && (
+                            <div className="flex justify-end">
+                                <button type="button" className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
+                                    Forgot password?
+                                </button>
+                            </div>
+                        )}
 
-                        <button type="submit" className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors mt-6">
-                            {isLogin ? 'Sign in' : 'Create account'}
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="btn-primary w-full flex items-center justify-center space-x-2"
+                        >
+                            {isSubmitting ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <span>{isLogin ? 'Sign in' : 'Create account'}</span>
+                            )}
                         </button>
                     </form>
+
+                    <p className="mt-8 text-center text-xs text-surface-500">
+                        By continuing, you agree to SmallStores'
+                        <span className="text-brand-400 cursor-pointer hover:text-brand-300 ml-1">Terms</span> and
+                        <span className="text-brand-400 cursor-pointer hover:text-brand-300 ml-1">Privacy Policy</span>.
+                    </p>
                 </div>
             </div>
         </div>

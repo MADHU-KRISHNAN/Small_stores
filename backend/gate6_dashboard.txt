@@ -1,0 +1,12 @@
+﻿{
+    "success":  true,
+    "message":  "Operation successful",
+    "data":  {
+                 "totalCustomers":  5,
+                 "totalProducts":  10,
+                 "totalRevenue":  12501.00,
+                 "newOrders":  53
+             },
+    "errors":  null,
+    "timestamp":  "2026-02-25T10:24:37.7407703"
+}

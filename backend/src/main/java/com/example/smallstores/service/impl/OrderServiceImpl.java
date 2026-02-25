@@ -2,12 +2,15 @@ package com.example.smallstores.service.impl;
 
 import com.example.smallstores.dto.OrderDto;
 import com.example.smallstores.dto.OrderItemDto;
+import com.example.smallstores.dto.PageResponseDTO;
 import com.example.smallstores.entity.*;
 import com.example.smallstores.repository.*;
 import com.example.smallstores.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -85,10 +88,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getAllOrdersByStore(Long storeId) {
-        return orderRepository.findByStoreId(storeId).stream()
+    public PageResponseDTO<OrderDto> getAllOrdersByStore(Long storeId, Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findByStoreId(storeId, pageable);
+        List<OrderDto> content = orderPage.getContent().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+
+        return PageResponseDTO.<OrderDto>builder()
+                .content(content)
+                .pageNumber(orderPage.getNumber())
+                .pageSize(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
     }
 
     @Override

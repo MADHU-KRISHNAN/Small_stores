@@ -1,5 +1,6 @@
 package com.example.smallstores.controller;
 
+import com.example.smallstores.dto.ApiResponse;
 import com.example.smallstores.dto.StoreDto;
 import com.example.smallstores.security.UserDetailsImpl;
 import com.example.smallstores.service.StoreService;
@@ -20,15 +21,16 @@ public class StoreController {
 
     @GetMapping
     @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<StoreDto> getStoreDetails(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(storeService.getStore(userDetails.getStoreId()));
+    public ResponseEntity<ApiResponse<StoreDto>> getStoreDetails(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(ApiResponse.success(storeService.getStore(userDetails.getStoreId())));
     }
 
     @PutMapping
     @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<StoreDto> updateStoreDetails(
+    public ResponseEntity<ApiResponse<StoreDto>> updateStoreDetails(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody StoreDto storeDto) {
-        return ResponseEntity.ok(storeService.updateStore(userDetails.getStoreId(), storeDto));
+        return ResponseEntity.ok(ApiResponse.success(storeService.updateStore(userDetails.getStoreId(), storeDto),
+                "Store updated successfully"));
     }
 }
