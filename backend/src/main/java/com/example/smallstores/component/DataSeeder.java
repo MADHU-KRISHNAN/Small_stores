@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import org.springframework.context.annotation.Profile;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.Random;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Profile("dev")
 public class DataSeeder implements CommandLineRunner {
 
     private final StoreRepository storeRepository;

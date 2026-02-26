@@ -18,4 +18,6 @@ public class ProductDto {
     @Min(0)
     private Integer stock;
     private String category;
+    private String description;
+    private String sku;
 }

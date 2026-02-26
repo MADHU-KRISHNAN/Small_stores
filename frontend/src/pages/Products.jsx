@@ -2,24 +2,34 @@ import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { PlusIcon, TrashIcon, XMarkIcon, MagnifyingGlassIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
+import Pagination from '../components/Pagination';
+import useDebounce from '../hooks/useDebounce';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
-    const [size] = useState(10);
+    const [size, setSize] = useState(10);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({ name: '', price: '', stock: '', category: '' });
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebounce(search, 300);
 
-    useEffect(() => { fetchProducts(); }, [page]);
+    // Confirm modal
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+
+    useEffect(() => { fetchProducts(); }, [page, size, debouncedSearch]);
 
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const res = await api.get(`/products?page=${page}&size=${size}`);
+            const params = { page, size };
+            if (debouncedSearch) params.search = debouncedSearch;
+            const res = await api.get('/products', { params });
             const responseData = res.data.data ? res.data.data : res.data;
             setProducts(responseData.content || []);
             setTotalPages(responseData.totalPages || 1);
@@ -48,22 +58,22 @@ export default function Products() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Delete this product?")) {
-            try {
-                await api.delete(`/products/${id}`);
-                toast.success('Product deleted');
-                fetchProducts();
-            } catch (error) {
-                toast.error('Failed to delete product');
-            }
-        }
+    const handleDeleteClick = (product) => {
+        setDeleteTarget(product);
+        setConfirmOpen(true);
     };
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.category || '').toLowerCase().includes(search.toLowerCase())
-    );
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget) return;
+        try {
+            await api.delete(`/products/${deleteTarget.id}`);
+            toast.success('Product deleted');
+            fetchProducts();
+        } catch (error) {
+            toast.error('Failed to delete product');
+        }
+        setDeleteTarget(null);
+    };
 
     const getStockBadge = (stock) => {
         if (stock === 0) return 'badge badge-danger';
@@ -71,7 +81,7 @@ export default function Products() {
         return 'badge badge-success';
     };
 
-    if (loading) {
+    if (loading && products.length === 0) {
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
@@ -113,7 +123,7 @@ export default function Products() {
                     type="text"
                     placeholder="Search products by name or category..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => { setSearch(e.target.value); setPage(0); }}
                     className="bg-transparent text-sm text-surface-200 placeholder-surface-500 outline-none w-full"
                 />
             </div>
@@ -131,17 +141,20 @@ export default function Products() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredProducts.length === 0 ? (
+                        {products.length === 0 ? (
                             <tr>
                                 <td colSpan={5}>
                                     <div className="flex flex-col items-center justify-center py-12 text-surface-500">
                                         <ArchiveBoxIcon className="w-12 h-12 mb-3 opacity-30" />
                                         <p className="text-sm">No products found</p>
+                                        <p className="text-xs text-surface-600 mt-1">
+                                            {search ? 'Try a different search term' : 'Add your first product to get started'}
+                                        </p>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
-                            filteredProducts.map((product, index) => (
+                            products.map((product, index) => (
                                 <tr key={product.id} className="animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
                                     <td>
                                         <div className="flex items-center space-x-3">
@@ -154,12 +167,12 @@ export default function Products() {
                                     <td>
                                         <span className="badge badge-info">{product.category || 'Uncategorized'}</span>
                                     </td>
-                                    <td className="text-surface-200 font-medium">${product.price.toFixed(2)}</td>
+                                    <td className="text-surface-200 font-medium">${product.price?.toFixed(2)}</td>
                                     <td>
                                         <span className={getStockBadge(product.stock)}>{product.stock} units</span>
                                     </td>
                                     <td className="text-right">
-                                        <button onClick={() => handleDelete(product.id)} className="btn-danger">
+                                        <button onClick={() => handleDeleteClick(product)} className="btn-danger">
                                             <TrashIcon className="w-4 h-4" />
                                         </button>
                                     </td>
@@ -172,16 +185,17 @@ export default function Products() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-surface-500">Page {page + 1} of {totalPages}</p>
-                    <div className="flex space-x-2">
-                        <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="btn-secondary disabled:opacity-30">Previous</button>
-                        <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className="btn-secondary disabled:opacity-30">Next</button>
-                    </div>
-                </div>
+                <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    size={size}
+                    onPageChange={setPage}
+                    onSizeChange={(s) => { setSize(s); setPage(0); }}
+                />
             )}
 
-            {/* Modal */}
+            {/* Create Modal */}
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                     <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
@@ -218,6 +232,17 @@ export default function Products() {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Delete Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Product"
+                message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                danger
+            />
         </div>
     );
 }

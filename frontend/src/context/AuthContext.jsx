@@ -13,14 +13,27 @@ export const AuthProvider = ({ children }) => {
         const userData = localStorage.getItem('user');
 
         if (token && userData) {
-            setUser(JSON.parse(userData));
+            try {
+                // Check if token is expired by decoding the payload
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.exp * 1000 > Date.now()) {
+                    setUser(JSON.parse(userData));
+                } else {
+                    // Token expired — clear and don't set user
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            } catch {
+                // Malformed token — clear
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
         }
         setLoading(false);
     }, []);
 
     const login = async (username, password) => {
-        const response = await api.post('/auth/signin', { username, password });
-        // Assuming ApiResponse structure returns the payload inside "data"
+        const response = await api.post('/auth/login', { username, password });
         const apiResponsePayload = response.data.data ? response.data.data : response.data;
 
         const strictUserData = parseLoginResponse(apiResponsePayload);
@@ -32,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (data) => {
-        const response = await api.post('/auth/signup', data);
+        const response = await api.post('/auth/register', data);
         return response.data;
     };
 

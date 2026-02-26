@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { useForm } from 'react-hook-form';
@@ -7,54 +7,39 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import toast from 'react-hot-toast';
 
-const loginSchema = yup.object().shape({
-    username: yup.string().required('Username is required'),
-    password: yup.string().required('Password is required')
-});
-
 const registerSchema = yup.object().shape({
     storeName: yup.string().required('Store name is required'),
     ownerName: yup.string().required('Owner name is required'),
     email: yup.string().email('Invalid email').required('Email is required'),
     username: yup.string().required('Username is required').min(3, 'Min 3 characters'),
-    password: yup.string().required('Password is required').min(6, 'Min 6 characters')
+    password: yup.string().required('Password is required').min(6, 'Min 6 characters'),
+    confirmPassword: yup.string()
+        .oneOf([yup.ref('password'), null], 'Passwords must match')
+        .required('Confirm your password'),
 });
 
-export default function Login() {
-    const [isLogin, setIsLogin] = useState(true);
+export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login, register: registerApi } = useAuth();
+    const { register: registerApi } = useAuth();
 
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-        reset
     } = useForm({
-        resolver: yupResolver(isLogin ? loginSchema : registerSchema),
-        mode: 'onTouched'
+        resolver: yupResolver(registerSchema),
+        mode: 'onTouched',
     });
-
-    const toggleMode = (loginMode) => {
-        setIsLogin(loginMode);
-        reset();
-    };
 
     const onSubmit = async (data) => {
         try {
-            if (isLogin) {
-                await login(data.username, data.password);
-                toast.success('Welcome back!');
-                navigate('/dashboard');
-            } else {
-                await registerApi(data);
-                setIsLogin(true);
-                toast.success('Account created! Please sign in.');
-                reset();
-            }
+            const { confirmPassword, ...payload } = data;
+            await registerApi(payload);
+            toast.success('Account created! Please sign in.');
+            navigate('/login');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Authentication failed');
+            toast.error(err.response?.data?.message || 'Registration failed');
         }
     };
 
@@ -86,18 +71,15 @@ export default function Login() {
         <div className="min-h-screen flex">
             {/* Left Panel — Brand */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-brand-900 via-surface-900 to-surface-950">
-                {/* Floating shapes */}
                 <div className="absolute top-20 left-20 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
                 <div className="absolute bottom-32 right-16 w-96 h-96 bg-brand-600/8 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
                 <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-brand-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
 
-                {/* Grid pattern */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{
                     backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
                     backgroundSize: '60px 60px'
                 }} />
 
-                {/* Content */}
                 <div className="relative z-10 flex flex-col justify-center px-16 xl:px-24">
                     <div className="flex items-center space-x-3 mb-8">
                         <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow-lg">
@@ -107,19 +89,19 @@ export default function Login() {
                     </div>
 
                     <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-                        Manage your store<br />
-                        <span className="gradient-text">like a pro.</span>
+                        Start your<br />
+                        <span className="gradient-text">business today.</span>
                     </h1>
 
                     <p className="text-lg text-surface-400 max-w-md leading-relaxed mb-10">
-                        Inventory tracking, customer management, order processing — everything you need to run your retail business, all in one beautiful dashboard.
+                        Set up your store in under a minute. Track inventory, manage customers, and process orders — all from one powerful dashboard.
                     </p>
 
                     <div className="flex items-center space-x-8">
                         {[
-                            { value: '10K+', label: 'Products Tracked' },
-                            { value: '99.9%', label: 'Uptime' },
-                            { value: '24/7', label: 'Support' },
+                            { value: 'Free', label: 'Setup' },
+                            { value: '60s', label: 'To Start' },
+                            { value: '∞', label: 'Growth' },
                         ].map((stat) => (
                             <div key={stat.label}>
                                 <p className="text-2xl font-bold text-white">{stat.value}</p>
@@ -130,7 +112,7 @@ export default function Login() {
                 </div>
             </div>
 
-            {/* Right Panel — Auth Form */}
+            {/* Right Panel — Form */}
             <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-surface-950">
                 <div className="w-full max-w-md animate-fade-in-up">
                     {/* Mobile logo */}
@@ -142,59 +124,19 @@ export default function Login() {
                     </div>
 
                     <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-white">
-                            {isLogin ? 'Welcome back' : 'Create your store'}
-                        </h2>
-                        <p className="text-surface-400 mt-2 text-sm">
-                            {isLogin ? 'Sign in to continue to your dashboard' : 'Get started with SmallStores for free'}
-                        </p>
-                    </div>
-
-                    {/* Tab Switcher */}
-                    <div className="flex mb-8 bg-surface-800/50 p-1 rounded-xl border border-surface-700/30">
-                        <button
-                            type="button"
-                            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${isLogin
-                                ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/25'
-                                : 'text-surface-400 hover:text-surface-200'
-                                }`}
-                            onClick={() => toggleMode(true)}
-                        >
-                            Sign In
-                        </button>
-                        <button
-                            type="button"
-                            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${!isLogin
-                                ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/25'
-                                : 'text-surface-400 hover:text-surface-200'
-                                }`}
-                            onClick={() => toggleMode(false)}
-                        >
-                            Register
-                        </button>
+                        <h2 className="text-2xl font-bold text-white">Create your store</h2>
+                        <p className="text-surface-400 mt-2 text-sm">Get started with SmallStores for free</p>
                     </div>
 
                     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-                        {!isLogin && (
-                            <>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Store Name" name="storeName" placeholder="My Store" />
-                                    <InputField label="Owner Name" name="ownerName" placeholder="John Doe" />
-                                </div>
-                                <InputField label="Email" name="email" type="email" placeholder="you@example.com" />
-                            </>
-                        )}
-
-                        <InputField label="Username" name="username" placeholder="Enter username" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <InputField label="Store Name" name="storeName" placeholder="My Store" />
+                            <InputField label="Owner Name" name="ownerName" placeholder="John Doe" />
+                        </div>
+                        <InputField label="Email" name="email" type="email" placeholder="you@example.com" />
+                        <InputField label="Username" name="username" placeholder="Choose a username" />
                         <InputField label="Password" name="password" placeholder="••••••••" isPassword />
-
-                        {isLogin && (
-                            <div className="flex justify-end">
-                                <button type="button" className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
-                                    Forgot password?
-                                </button>
-                            </div>
-                        )}
+                        <InputField label="Confirm Password" name="confirmPassword" placeholder="••••••••" isPassword />
 
                         <button
                             type="submit"
@@ -204,16 +146,16 @@ export default function Login() {
                             {isSubmitting ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <span>{isLogin ? 'Sign in' : 'Create account'}</span>
+                                <span>Create account</span>
                             )}
                         </button>
                     </form>
 
                     <p className="mt-6 text-center text-sm text-surface-400">
-                        Don't have an account?{' '}
-                        <a href="/register" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">
-                            Create one
-                        </a>
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">
+                            Sign in
+                        </Link>
                     </p>
 
                     <p className="mt-4 text-center text-xs text-surface-500">

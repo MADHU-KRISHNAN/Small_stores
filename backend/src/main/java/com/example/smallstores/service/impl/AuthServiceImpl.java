@@ -1,9 +1,9 @@
 package com.example.smallstores.service.impl;
 
-import com.example.smallstores.dto.JwtResponse;
+import com.example.smallstores.dto.AuthResponse;
 import com.example.smallstores.dto.LoginRequest;
 import com.example.smallstores.dto.MessageResponse;
-import com.example.smallstores.dto.SignupRequest;
+import com.example.smallstores.dto.RegisterRequest;
 import com.example.smallstores.entity.Role;
 import com.example.smallstores.entity.Store;
 import com.example.smallstores.entity.User;
@@ -17,14 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         private final JwtUtils jwtUtils;
 
         @Override
-        public JwtResponse authenticateUser(LoginRequest loginRequest) {
+        public AuthResponse authenticateUser(LoginRequest loginRequest) {
                 Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                                                 loginRequest.getPassword()));
@@ -46,37 +42,48 @@ public class AuthServiceImpl implements AuthService {
                 String jwt = jwtUtils.generateJwtToken(authentication);
 
                 UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-                List<String> roles = userDetails.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toList());
 
-                return new JwtResponse(jwt,
+                // Fetch store name for the response
+                String storeName = "";
+                String role = "";
+                if (userDetails.getStoreId() != null) {
+                        storeName = storeRepository.findById(userDetails.getStoreId())
+                                        .map(Store::getStoreName)
+                                        .orElse("");
+                }
+                if (!userDetails.getAuthorities().isEmpty()) {
+                        role = userDetails.getAuthorities().iterator().next().getAuthority()
+                                        .replace("ROLE_", "");
+                }
+
+                return new AuthResponse(jwt,
                                 userDetails.getId(),
                                 userDetails.getUsername(),
                                 userDetails.getStoreId(),
-                                roles);
+                                storeName,
+                                role);
         }
 
         @Override
         @Transactional
-        public MessageResponse registerUser(SignupRequest signUpRequest) {
-                if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()) {
+        public MessageResponse registerUser(RegisterRequest registerRequest) {
+                if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
                         throw new UserAlreadyExistsException("Error: Username is already taken!");
                 }
 
                 Store store = Store.builder()
-                                .storeName(signUpRequest.getStoreName())
-                                .ownerName(signUpRequest.getOwnerName())
-                                .email(signUpRequest.getEmail())
-                                .phone(signUpRequest.getPhone())
-                                .address(signUpRequest.getAddress())
+                                .storeName(registerRequest.getStoreName())
+                                .ownerName(registerRequest.getOwnerName())
+                                .email(registerRequest.getEmail())
+                                .phone(registerRequest.getPhone())
+                                .address(registerRequest.getAddress())
                                 .build();
 
                 Store savedStore = storeRepository.save(store);
 
                 User user = User.builder()
-                                .username(signUpRequest.getUsername())
-                                .password(encoder.encode(signUpRequest.getPassword()))
+                                .username(registerRequest.getUsername())
+                                .password(encoder.encode(registerRequest.getPassword()))
                                 .role(Role.STORE_OWNER)
                                 .store(savedStore)
                                 .build();

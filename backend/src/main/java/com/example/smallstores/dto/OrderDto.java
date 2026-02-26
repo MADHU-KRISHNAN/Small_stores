@@ -13,6 +13,7 @@ public class OrderDto {
     private BigDecimal totalAmount;
     private OrderStatus status;
     private Long customerId;
-    private String customerName; // Read-only helper field
+    private String customerName;
+    private String notes;
     private List<OrderItemDto> orderItems;
 }

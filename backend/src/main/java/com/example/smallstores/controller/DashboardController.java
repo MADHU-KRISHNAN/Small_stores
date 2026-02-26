@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.smallstores.service.DashboardService;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -31,5 +32,14 @@ public class DashboardController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMonthlySales(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(ApiResponse.success(dashboardService.getMonthlySales(userDetails.getStoreId())));
+    }
+
+    @GetMapping("/products/top")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopSellingProducts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam(name = "limit", defaultValue = "5") int limit) {
+        return ResponseEntity
+                .ok(ApiResponse.success(dashboardService.getTopSellingProducts(userDetails.getStoreId(), limit)));
     }
 }

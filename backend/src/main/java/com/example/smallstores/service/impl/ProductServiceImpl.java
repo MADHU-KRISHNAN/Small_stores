@@ -4,6 +4,7 @@ import com.example.smallstores.dto.PageResponseDTO;
 import com.example.smallstores.dto.ProductDto;
 import com.example.smallstores.entity.Product;
 import com.example.smallstores.entity.Store;
+import com.example.smallstores.exception.ResourceNotFoundException;
 import com.example.smallstores.repository.ProductRepository;
 import com.example.smallstores.repository.StoreRepository;
 import com.example.smallstores.service.ProductService;
@@ -27,13 +28,15 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductDto createProduct(Long storeId, ProductDto productDto) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
 
         Product product = Product.builder()
                 .name(productDto.getName())
                 .price(productDto.getPrice())
                 .stock(productDto.getStock())
                 .category(productDto.getCategory())
+                .description(productDto.getDescription())
+                .sku(productDto.getSku())
                 .store(store)
                 .build();
 
@@ -42,8 +45,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResponseDTO<ProductDto> getAllProductsByStore(Long storeId, Pageable pageable) {
-        Page<Product> productPage = productRepository.findByStoreId(storeId, pageable);
+    public PageResponseDTO<ProductDto> getAllProductsByStore(Long storeId, Pageable pageable, String category,
+            String search) {
+        Page<Product> productPage;
+
+        boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean hasCategory = category != null && !category.trim().isEmpty();
+
+        if (hasSearch && hasCategory) {
+            productPage = productRepository.searchByStoreIdAndCategory(storeId, category, search, pageable);
+        } else if (hasSearch) {
+            productPage = productRepository.searchByStoreId(storeId, search, pageable);
+        } else if (hasCategory) {
+            productPage = productRepository.findByStoreIdAndCategory(storeId, category, pageable);
+        } else {
+            productPage = productRepository.findByStoreId(storeId, pageable);
+        }
+
         List<ProductDto> content = productPage.getContent().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -73,6 +91,12 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDto.getPrice());
         product.setStock(productDto.getStock());
         product.setCategory(productDto.getCategory());
+        if (productDto.getDescription() != null) {
+            product.setDescription(productDto.getDescription());
+        }
+        if (productDto.getSku() != null) {
+            product.setSku(productDto.getSku());
+        }
 
         return mapToDto(productRepository.save(product));
     }
@@ -91,9 +115,14 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<String> getCategories(Long storeId) {
+        return productRepository.findDistinctCategoriesByStoreId(storeId);
+    }
+
     private Product getProduct(Long storeId, Long productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         if (!product.getStore().getId().equals(storeId)) {
             throw new RuntimeException("Product does not belong to this store");
         }
@@ -107,6 +136,8 @@ public class ProductServiceImpl implements ProductService {
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
         dto.setCategory(product.getCategory());
+        dto.setDescription(product.getDescription());
+        dto.setSku(product.getSku());
         return dto;
     }
 }

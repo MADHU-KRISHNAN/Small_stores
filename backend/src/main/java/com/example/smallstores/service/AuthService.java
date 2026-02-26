@@ -1,12 +1,12 @@
 package com.example.smallstores.service;
 
 import com.example.smallstores.dto.LoginRequest;
-import com.example.smallstores.dto.SignupRequest;
-import com.example.smallstores.dto.JwtResponse;
+import com.example.smallstores.dto.RegisterRequest;
+import com.example.smallstores.dto.AuthResponse;
 import com.example.smallstores.dto.MessageResponse;
 
 public interface AuthService {
-    JwtResponse authenticateUser(LoginRequest loginRequest);
+    AuthResponse authenticateUser(LoginRequest loginRequest);
 
-    MessageResponse registerUser(SignupRequest signUpRequest);
+    MessageResponse registerUser(RegisterRequest registerRequest);
 }

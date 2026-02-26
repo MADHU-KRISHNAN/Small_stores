@@ -1,18 +1,29 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import { PlusIcon, XMarkIcon, ShoppingCartIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, ShoppingCartIcon, EyeIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import Pagination from '../components/Pagination';
+
+const STATUS_BADGES = {
+    PENDING: 'badge badge-warning',
+    CONFIRMED: 'bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-lg text-xs font-semibold',
+    SHIPPED: 'bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-lg text-xs font-semibold',
+    DELIVERED: 'badge badge-success',
+    COMPLETED: 'badge badge-success',
+    CANCELLED: 'badge badge-danger',
+};
 
 export default function Orders() {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
-    const [size] = useState(10);
+    const [size, setSize] = useState(10);
     const [loading, setLoading] = useState(true);
-    const [expandedOrder, setExpandedOrder] = useState(null);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newOrder, setNewOrder] = useState({
@@ -20,7 +31,7 @@ export default function Orders() {
         orderItems: [{ productId: '', quantity: 1 }]
     });
 
-    useEffect(() => { fetchData(); }, [page]);
+    useEffect(() => { fetchData(); }, [page, size]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -99,26 +110,52 @@ export default function Orders() {
         }
     };
 
-    const updateStatus = async (id, status) => {
+    const updateStatus = async (id, status, e) => {
+        e?.stopPropagation();
         try {
             await api.patch(`/orders/${id}/status`, { status });
             toast.success(`Order marked as ${status.toLowerCase()}`);
             fetchData();
         } catch (error) {
-            toast.error('Failed to update status');
+            toast.error(error.response?.data?.message || 'Failed to update status');
         }
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'COMPLETED': return 'badge badge-success';
-            case 'PENDING': return 'badge badge-warning';
-            case 'CANCELLED': return 'badge badge-danger';
-            default: return 'badge badge-info';
+    const getNextAction = (order) => {
+        switch (order.status) {
+            case 'PENDING':
+                return (
+                    <div className="flex items-center space-x-2">
+                        <button onClick={(e) => updateStatus(order.id, 'CONFIRMED', e)}
+                            className="text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-all">
+                            Confirm
+                        </button>
+                        <button onClick={(e) => updateStatus(order.id, 'CANCELLED', e)}
+                            className="text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                );
+            case 'CONFIRMED':
+                return (
+                    <button onClick={(e) => updateStatus(order.id, 'SHIPPED', e)}
+                        className="text-xs font-medium text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1.5 rounded-lg transition-all">
+                        Ship
+                    </button>
+                );
+            case 'SHIPPED':
+                return (
+                    <button onClick={(e) => updateStatus(order.id, 'DELIVERED', e)}
+                        className="text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-all">
+                        Deliver
+                    </button>
+                );
+            default:
+                return null;
         }
     };
 
-    if (loading) {
+    if (loading && orders.length === 0) {
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
@@ -172,67 +209,45 @@ export default function Orders() {
                                     <div className="flex flex-col items-center justify-center py-12 text-surface-500">
                                         <ShoppingCartIcon className="w-12 h-12 mb-3 opacity-30" />
                                         <p className="text-sm">No orders yet</p>
+                                        <p className="text-xs text-surface-600 mt-1">Create your first order to get started</p>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
                             orders.map((order, index) => (
-                                <>
-                                    <tr key={order.id} className="animate-fade-in cursor-pointer" style={{ animationDelay: `${index * 30}ms` }} onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
-                                        <td>
-                                            <span className="font-semibold text-brand-400">#{String(order.id).padStart(4, '0')}</span>
-                                        </td>
-                                        <td className="text-surface-400">
-                                            {new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                        </td>
-                                        <td className="text-surface-300">{order.customerName || 'Walk-in'}</td>
-                                        <td className="text-white font-semibold">${order.totalAmount.toFixed(2)}</td>
-                                        <td>
-                                            <span className={getStatusBadge(order.status)}>
-                                                {order.status === 'PENDING' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1.5" />}
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td className="text-right">
-                                            <div className="flex items-center justify-end space-x-2">
-                                                {order.status === 'PENDING' && (
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'COMPLETED'); }}
-                                                        className="text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-all"
-                                                    >
-                                                        Complete
-                                                    </button>
-                                                )}
-                                                <button onClick={(e) => e.stopPropagation()} className="text-surface-500 hover:text-surface-300 p-1">
-                                                    {expandedOrder === order.id ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {/* Expanded order items */}
-                                    {expandedOrder === order.id && order.orderItems && (
-                                        <tr key={`items-${order.id}`}>
-                                            <td colSpan={6} className="!p-0">
-                                                <div className="bg-surface-900/50 px-8 py-4 space-y-2 animate-fade-in">
-                                                    <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Order Items</p>
-                                                    {order.orderItems.map(item => (
-                                                        <div key={item.id} className="flex items-center justify-between py-1.5 text-sm">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="w-6 h-6 rounded bg-surface-700/50 flex items-center justify-center text-xs text-surface-400">{item.quantity}x</div>
-                                                                <span className="text-surface-300">{item.productName}</span>
-                                                            </div>
-                                                            <span className="text-surface-400">${(item.price * item.quantity).toFixed(2)}</span>
-                                                        </div>
-                                                    ))}
-                                                    <div className="flex items-center justify-between pt-2 border-t border-surface-700/30 text-sm font-semibold">
-                                                        <span className="text-surface-300">Total</span>
-                                                        <span className="text-white">${order.totalAmount.toFixed(2)}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </>
+                                <tr
+                                    key={order.id}
+                                    className="animate-fade-in cursor-pointer hover:bg-surface-800/30"
+                                    style={{ animationDelay: `${index * 30}ms` }}
+                                    onClick={() => navigate(`/orders/${order.id}`)}
+                                >
+                                    <td>
+                                        <span className="font-semibold text-brand-400">#{String(order.id).padStart(4, '0')}</span>
+                                    </td>
+                                    <td className="text-surface-400">
+                                        {new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </td>
+                                    <td className="text-surface-300">{order.customerName || 'Walk-in'}</td>
+                                    <td className="text-white font-semibold">${order.totalAmount?.toFixed(2)}</td>
+                                    <td>
+                                        <span className={STATUS_BADGES[order.status] || 'badge badge-info'}>
+                                            {order.status === 'PENDING' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1.5 inline-block" />}
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="text-right" onClick={e => e.stopPropagation()}>
+                                        <div className="flex items-center justify-end space-x-2">
+                                            {getNextAction(order)}
+                                            <button
+                                                onClick={() => navigate(`/orders/${order.id}`)}
+                                                className="text-surface-400 hover:text-brand-400 p-1.5 hover:bg-brand-500/10 rounded-lg transition-all"
+                                                title="View details"
+                                            >
+                                                <EyeIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
                             ))
                         )}
                     </tbody>
@@ -240,13 +255,14 @@ export default function Orders() {
             </div>
 
             {totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-surface-500">Page {page + 1} of {totalPages}</p>
-                    <div className="flex space-x-2">
-                        <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="btn-secondary disabled:opacity-30">Previous</button>
-                        <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className="btn-secondary disabled:opacity-30">Next</button>
-                    </div>
-                </div>
+                <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    size={size}
+                    onPageChange={setPage}
+                    onSizeChange={(s) => { setSize(s); setPage(0); }}
+                />
             )}
 
             {/* Create Order Modal */}
@@ -308,7 +324,6 @@ export default function Orders() {
                                 </button>
                             </div>
 
-                            {/* Live Total */}
                             <div className="bg-surface-900/50 rounded-xl p-4 flex items-center justify-between border border-surface-700/30">
                                 <span className="text-surface-300 font-medium">Estimated Total</span>
                                 <span className="text-2xl font-bold text-white">${calculateTotal().toFixed(2)}</span>

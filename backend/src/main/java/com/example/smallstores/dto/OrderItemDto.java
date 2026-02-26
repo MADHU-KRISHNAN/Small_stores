@@ -10,9 +10,10 @@ public class OrderItemDto {
     private Long id;
     @NotNull
     private Long productId;
-    private String productName; // Read-only helper field
+    private String productName;
     @NotNull
     @Min(1)
     private Integer quantity;
-    private BigDecimal price; // Read-only helper field
+    private BigDecimal price;
+    private BigDecimal totalPrice;
 }

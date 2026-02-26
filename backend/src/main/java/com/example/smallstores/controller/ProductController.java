@@ -27,12 +27,14 @@ public class ProductController {
         public ResponseEntity<ApiResponse<PageResponseDTO<ProductDto>>> getAllProducts(
                         @AuthenticationPrincipal UserDetailsImpl userDetails,
                         @RequestParam(name = "page", defaultValue = "0") int page,
-                        @RequestParam(name = "size", defaultValue = "10") int size) {
+                        @RequestParam(name = "size", defaultValue = "10") int size,
+                        @RequestParam(name = "category", required = false) String category,
+                        @RequestParam(name = "search", required = false) String search) {
                 org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page,
                                 size);
                 return ResponseEntity
                                 .ok(ApiResponse.success(productService.getAllProductsByStore(userDetails.getStoreId(),
-                                                pageable)));
+                                                pageable, category, search)));
         }
 
         @GetMapping("/low-stock")
@@ -43,6 +45,14 @@ public class ProductController {
                 return ResponseEntity
                                 .ok(ApiResponse.success(productService.getLowStockProducts(userDetails.getStoreId(),
                                                 threshold)));
+        }
+
+        @GetMapping("/categories")
+        @PreAuthorize("hasRole('STORE_OWNER')")
+        public ResponseEntity<ApiResponse<List<String>>> getCategories(
+                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                return ResponseEntity
+                                .ok(ApiResponse.success(productService.getCategories(userDetails.getStoreId())));
         }
 
         @GetMapping("/{id}")

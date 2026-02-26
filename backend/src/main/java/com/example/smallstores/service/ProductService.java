@@ -8,7 +8,7 @@ import java.util.List;
 public interface ProductService {
     ProductDto createProduct(Long storeId, ProductDto productDto);
 
-    PageResponseDTO<ProductDto> getAllProductsByStore(Long storeId, Pageable pageable);
+    PageResponseDTO<ProductDto> getAllProductsByStore(Long storeId, Pageable pageable, String category, String search);
 
     ProductDto getProductById(Long storeId, Long productId);
 
@@ -17,4 +17,6 @@ public interface ProductService {
     void deleteProduct(Long storeId, Long productId);
 
     List<ProductDto> getLowStockProducts(Long storeId, Integer threshold);
+
+    List<String> getCategories(Long storeId);
 }

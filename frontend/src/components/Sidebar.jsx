@@ -7,6 +7,8 @@ import {
     ArrowRightOnRectangleIcon,
     XMarkIcon,
     SparklesIcon,
+    ClipboardDocumentListIcon,
+    BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,8 +19,10 @@ export default function Sidebar({ isOpen, onClose }) {
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: HomeIcon },
         { name: 'Products', path: '/products', icon: ArchiveBoxIcon },
+        { name: 'Inventory', path: '/inventory', icon: ClipboardDocumentListIcon },
         { name: 'Customers', path: '/customers', icon: UsersIcon },
         { name: 'Orders', path: '/orders', icon: ShoppingCartIcon },
+        { name: 'Store Profile', path: '/store', icon: BuildingStorefrontIcon },
     ];
 
     return (
@@ -51,8 +55,8 @@ export default function Sidebar({ isOpen, onClose }) {
                             to={item.path}
                             onClick={onClose}
                             className={`group flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 relative ${isActive
-                                    ? 'bg-brand-500/10 text-brand-400'
-                                    : 'text-surface-400 hover:bg-surface-800/50 hover:text-surface-200'
+                                ? 'bg-brand-500/10 text-brand-400'
+                                : 'text-surface-400 hover:bg-surface-800/50 hover:text-surface-200'
                                 }`}
                             style={{ animationDelay: `${index * 50}ms` }}
                         >
