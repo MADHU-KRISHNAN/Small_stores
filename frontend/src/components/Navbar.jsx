@@ -48,10 +48,7 @@ export default function Navbar({ onMenuToggle }) {
                     <span className="absolute top-1 right-1 w-2 h-2 bg-brand-500 rounded-full animate-pulse-glow" />
                 </button>
 
-                {/* User avatar */}
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-glow cursor-pointer hover:shadow-glow-lg transition-shadow">
-                    {user?.username?.charAt(0).toUpperCase()}
-                </div>
+
             </div>
         </header>
     );

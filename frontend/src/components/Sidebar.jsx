@@ -8,7 +8,6 @@ import {
     XMarkIcon,
     SparklesIcon,
     ClipboardDocumentListIcon,
-    BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 
@@ -22,7 +21,6 @@ export default function Sidebar({ isOpen, onClose }) {
         { name: 'Inventory', path: '/inventory', icon: ClipboardDocumentListIcon },
         { name: 'Customers', path: '/customers', icon: UsersIcon },
         { name: 'Orders', path: '/orders', icon: ShoppingCartIcon },
-        { name: 'Store Profile', path: '/store', icon: BuildingStorefrontIcon },
     ];
 
     return (
@@ -72,15 +70,15 @@ export default function Sidebar({ isOpen, onClose }) {
 
             {/* User section + Logout */}
             <div className="p-4 border-t border-surface-700/30 space-y-3">
-                <div className="flex items-center space-x-3 px-3 py-2">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-glow">
+                <Link to="/store" onClick={onClose} className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-surface-800/50 transition-all duration-200 group cursor-pointer">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
                         {user?.username?.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-surface-200 truncate">{user?.username}</p>
                         <p className="text-xs text-surface-500 truncate">{user?.role?.replace('ROLE_', '')}</p>
                     </div>
-                </div>
+                </Link>
                 <button
                     onClick={logout}
                     className="flex items-center space-x-3 px-4 py-2.5 w-full text-surface-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all duration-200"
