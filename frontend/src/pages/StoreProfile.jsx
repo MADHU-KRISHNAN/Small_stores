@@ -29,7 +29,7 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
         </div>
         <div>
             <p className="text-2xl font-bold text-white">{value ?? '—'}</p>
-            <p className="text-sm text-slate-400 mt-0.5">{label}</p>
+            <p className="text-sm text-surface-400 mt-0.5">{label}</p>
         </div>
     </div>
 );
@@ -37,15 +37,15 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
 // ─── Sub-component: FieldDisplay ─────────────────────────────────────────────
 const FieldDisplay = ({ label, value }) => (
     <div>
-        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</p>
-        <p className="text-white font-medium">{value || <span className="text-slate-500 italic">Not set</span>}</p>
+        <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-white font-medium">{value || <span className="text-surface-500 italic">Not set</span>}</p>
     </div>
 );
 
 // ─── Sub-component: FormInput ────────────────────────────────────────────────
 const FormInput = ({ label, name, register, error, type = 'text', placeholder, rightElement }) => (
     <div>
-        <label className="block text-sm text-slate-400 mb-1.5">{label}</label>
+        <label className="block text-sm text-surface-400 mb-1.5">{label}</label>
         <div className="relative">
             <input
                 {...register(name)}
@@ -67,12 +67,12 @@ const FormInput = ({ label, name, register, error, type = 'text', placeholder, r
 const SectionHeader = ({ icon: Icon, title, subtitle, action }) => (
     <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-violet-400" />
+            <div className="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-brand-400" />
             </div>
             <div>
                 <h2 className="text-base font-semibold text-white">{title}</h2>
-                <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+                <p className="text-xs text-surface-500 mt-0.5">{subtitle}</p>
             </div>
         </div>
         {action}
@@ -83,21 +83,21 @@ const SectionHeader = ({ icon: Icon, title, subtitle, action }) => (
 const ProfileSkeleton = () => (
     <div className="animate-pulse space-y-6">
         <div className="glass-card p-6">
-            <div className="h-5 w-32 bg-slate-700 rounded mb-6" />
+            <div className="h-5 w-32 bg-surface-700 rounded mb-6" />
             <div className="grid grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map(i => (
                     <div key={i}>
-                        <div className="h-3 w-20 bg-slate-700 rounded mb-2" />
-                        <div className="h-5 w-full bg-slate-700 rounded" />
+                        <div className="h-3 w-20 bg-surface-700 rounded mb-2" />
+                        <div className="h-5 w-full bg-surface-700 rounded" />
                     </div>
                 ))}
             </div>
         </div>
         <div className="glass-card p-6">
-            <div className="h-5 w-40 bg-slate-700 rounded mb-6" />
+            <div className="h-5 w-40 bg-surface-700 rounded mb-6" />
             <div className="space-y-4">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className="h-10 bg-slate-700 rounded" />
+                    <div key={i} className="h-10 bg-surface-700 rounded" />
                 ))}
             </div>
         </div>
@@ -235,8 +235,8 @@ const StoreProfile = () => {
         return (
             <div className="max-w-5xl mx-auto py-8 px-4 lg:px-6">
                 <div className="mb-8">
-                    <div className="h-7 w-40 bg-slate-700 rounded animate-pulse mb-2" />
-                    <div className="h-4 w-64 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-7 w-40 bg-surface-700 rounded animate-pulse mb-2" />
+                    <div className="h-4 w-64 bg-surface-700 rounded animate-pulse" />
                 </div>
                 <ProfileSkeleton />
             </div>
@@ -246,8 +246,8 @@ const StoreProfile = () => {
     if (!profile) {
         return (
             <div className="max-w-5xl mx-auto py-8 px-4 lg:px-6 flex flex-col items-center justify-center min-h-64">
-                <BuildingStorefrontIcon className="w-12 h-12 text-slate-600 mb-4" />
-                <p className="text-slate-400 text-lg font-medium">Could not load store profile</p>
+                <BuildingStorefrontIcon className="w-12 h-12 text-surface-600 mb-4" />
+                <p className="text-surface-400 text-lg font-medium">Could not load store profile</p>
                 <button
                     onClick={() => window.location.reload()}
                     className="btn-primary mt-4"
@@ -264,7 +264,7 @@ const StoreProfile = () => {
             {/* ── Page Header ──────────────────────────────────────────────────── */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-white">Store Profile</h1>
-                <p className="text-slate-400 text-sm mt-1">
+                <p className="text-surface-400 text-sm mt-1">
                     Manage your store details and account security
                 </p>
             </div>
@@ -284,7 +284,7 @@ const StoreProfile = () => {
                                 !isStoreEditMode ? (
                                     <button
                                         onClick={() => setIsStoreEditMode(true)}
-                                        className="flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 
+                                        className="flex items-center gap-2 text-sm text-brand-400 hover:text-brand-300 
                                transition-colors font-medium"
                                     >
                                         <PencilSquareIcon className="w-4 h-4" />
@@ -328,9 +328,9 @@ const StoreProfile = () => {
 
                                     {/* Immutable email — shown as disabled, not editable */}
                                     <div>
-                                        <label className="block text-sm text-slate-400 mb-1.5">
+                                        <label className="block text-sm text-surface-400 mb-1.5">
                                             Registered Email
-                                            <span className="ml-2 text-xs text-slate-600">(cannot be changed)</span>
+                                            <span className="ml-2 text-xs text-surface-600">(cannot be changed)</span>
                                         </label>
                                         <input
                                             type="email"
@@ -349,7 +349,7 @@ const StoreProfile = () => {
                                     />
 
                                     <div className="sm:col-span-2">
-                                        <label className="block text-sm text-slate-400 mb-1.5">Address</label>
+                                        <label className="block text-sm text-surface-400 mb-1.5">Address</label>
                                         <textarea
                                             {...storeForm.register('address')}
                                             rows={3}
@@ -366,7 +366,7 @@ const StoreProfile = () => {
                                 </div>
 
                                 {/* Edit Mode Actions */}
-                                <div className="flex gap-3 mt-6 pt-4 border-t border-slate-700">
+                                <div className="flex gap-3 mt-6 pt-4 border-t border-surface-700">
                                     <button
                                         type="submit"
                                         disabled={isStoreSaving || !storeForm.formState.isDirty}
@@ -418,7 +418,7 @@ const StoreProfile = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowCurrentPassword(p => !p)}
-                                        className="text-slate-500 hover:text-slate-300 transition-colors"
+                                        className="text-surface-500 hover:text-surface-300 transition-colors"
                                     >
                                         {showCurrentPassword
                                             ? <EyeSlashIcon className="w-4 h-4" />
@@ -508,7 +508,7 @@ const StoreProfile = () => {
                                 icon={CubeIcon}
                                 label="Total Products"
                                 value={profile.totalProducts?.toLocaleString()}
-                                color="bg-violet-500/30"
+                                color="bg-brand-500/30"
                             />
                             <StatCard
                                 icon={UsersIcon}
@@ -534,38 +534,38 @@ const StoreProfile = () => {
                         />
                         <div className="space-y-4">
                             <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Username</p>
+                                <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Username</p>
                                 <p className="text-white font-medium font-mono">@{profile.username}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Member Since</p>
+                                <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Member Since</p>
                                 <p className="text-white font-medium">{formatDate(profile.createdAt)}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Last Updated</p>
+                                <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Last Updated</p>
                                 <p className="text-white font-medium">{formatDate(profile.updatedAt)}</p>
                             </div>
 
                             {/* Store ID copy pill */}
                             <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Store ID</p>
+                                <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Store ID</p>
                                 <button
                                     onClick={handleCopyStoreId}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 
-                             hover:bg-slate-700 border border-slate-700 hover:border-slate-600 
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-800 
+                             hover:bg-surface-700 border border-surface-700 hover:border-surface-600 
                              transition-all group w-full"
                                 >
-                                    <span className="text-slate-300 font-mono text-sm flex-1 text-left">
+                                    <span className="text-surface-300 font-mono text-sm flex-1 text-left">
                                         #{profile.storeId}
                                     </span>
                                     {copied ? (
                                         <CheckIcon className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                                     ) : (
-                                        <ClipboardDocumentIcon className="w-4 h-4 text-slate-500 group-hover:text-slate-300 
+                                        <ClipboardDocumentIcon className="w-4 h-4 text-surface-500 group-hover:text-surface-300 
                                                        flex-shrink-0 transition-colors" />
                                     )}
                                 </button>
-                                <p className="text-xs text-slate-600 mt-1">
+                                <p className="text-xs text-surface-600 mt-1">
                                     {copied ? 'Copied to clipboard!' : 'Click to copy for support'}
                                 </p>
                             </div>

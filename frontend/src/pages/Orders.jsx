@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import { PlusIcon, XMarkIcon, ShoppingCartIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, ShoppingCartIcon, EyeIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import Pagination from '../components/Pagination';
 
-const STATUS_BADGES = {
-    PENDING: 'badge badge-warning',
-    CONFIRMED: 'bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-lg text-xs font-semibold',
-    SHIPPED: 'bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-lg text-xs font-semibold',
-    DELIVERED: 'badge badge-success',
-    COMPLETED: 'badge badge-success',
-    CANCELLED: 'badge badge-danger',
+const STATUS_CONFIG = {
+    PENDING: { bg: 'bg-amber-500/10', text: 'text-amber-400', dot: 'bg-amber-400', label: 'Pending' },
+    CONFIRMED: { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400', label: 'Confirmed' },
+    SHIPPED: { bg: 'bg-purple-500/10', text: 'text-purple-400', dot: 'bg-purple-400', label: 'Shipped' },
+    DELIVERED: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Delivered' },
+    COMPLETED: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Completed' },
+    CANCELLED: { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-400', label: 'Cancelled' },
 };
 
 export default function Orders() {
@@ -24,6 +24,7 @@ export default function Orders() {
     const [totalElements, setTotalElements] = useState(0);
     const [size, setSize] = useState(10);
     const [loading, setLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState('ALL');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newOrder, setNewOrder] = useState({
@@ -155,6 +156,9 @@ export default function Orders() {
         }
     };
 
+    const filteredOrders = statusFilter === 'ALL' ? orders : orders.filter(o => o.status === statusFilter);
+    const statusCounts = orders.reduce((acc, o) => { acc[o.status] = (acc[o.status] || 0) + 1; return acc; }, {});
+
     if (loading && orders.length === 0) {
         return (
             <div className="space-y-6">
@@ -169,7 +173,6 @@ export default function Orders() {
                             <div className="h-4 w-24 shimmer" />
                             <div className="h-4 w-32 shimmer" />
                             <div className="h-4 w-20 shimmer" />
-                            <div className="h-4 w-20 shimmer" />
                         </div>
                     ))}
                 </div>
@@ -181,7 +184,7 @@ export default function Orders() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Orders</h1>
+                    <h1 className="text-2xl font-bold text-white">Order Management</h1>
                     <p className="text-sm text-surface-400 mt-1">{totalElements} total orders</p>
                 </div>
                 <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center space-x-2">
@@ -190,68 +193,86 @@ export default function Orders() {
                 </button>
             </div>
 
+            {/* Status Filter Tabs */}
+            <div className="flex flex-wrap gap-2">
+                {['ALL', 'PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(status => {
+                    const count = status === 'ALL' ? orders.length : (statusCounts[status] || 0);
+                    const isActive = statusFilter === status;
+                    const cfg = STATUS_CONFIG[status];
+                    return (
+                        <button
+                            key={status}
+                            onClick={() => setStatusFilter(status)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border ${isActive
+                                ? status === 'ALL'
+                                    ? 'bg-brand-600 text-white border-brand-500 shadow-lg shadow-brand-600/25'
+                                    : `${cfg?.bg} ${cfg?.text} border-current/20`
+                                : 'bg-surface-800/50 text-surface-400 border-surface-700/30 hover:text-surface-200'
+                                }`}
+                        >
+                            {status === 'ALL' ? 'All' : cfg?.label} ({count})
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Orders List */}
             <div className="glass-card-solid overflow-hidden">
-                <table className="table-dark">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th className="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.length === 0 ? (
-                            <tr>
-                                <td colSpan={6}>
-                                    <div className="flex flex-col items-center justify-center py-12 text-surface-500">
-                                        <ShoppingCartIcon className="w-12 h-12 mb-3 opacity-30" />
-                                        <p className="text-sm">No orders yet</p>
-                                        <p className="text-xs text-surface-600 mt-1">Create your first order to get started</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            orders.map((order, index) => (
-                                <tr
+                {filteredOrders.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-surface-500">
+                        <ShoppingBagIcon className="w-16 h-16 mb-4 opacity-20" />
+                        <p className="text-sm font-medium">No orders found</p>
+                        <p className="text-xs text-surface-600 mt-1">
+                            {statusFilter !== 'ALL' ? 'Try a different filter' : 'Create your first order to get started'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-surface-700/20">
+                        {filteredOrders.map((order, index) => {
+                            const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.PENDING;
+                            return (
+                                <div
                                     key={order.id}
-                                    className="animate-fade-in cursor-pointer hover:bg-surface-800/30"
+                                    className="flex items-center justify-between px-6 py-4 hover:bg-surface-800/30 cursor-pointer transition-colors group animate-fade-in"
                                     style={{ animationDelay: `${index * 30}ms` }}
                                     onClick={() => navigate(`/orders/${order.id}`)}
                                 >
-                                    <td>
-                                        <span className="font-semibold text-brand-400">#{String(order.id).padStart(4, '0')}</span>
-                                    </td>
-                                    <td className="text-surface-400">
-                                        {new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </td>
-                                    <td className="text-surface-300">{order.customerName || 'Walk-in'}</td>
-                                    <td className="text-white font-semibold">${order.totalAmount?.toFixed(2)}</td>
-                                    <td>
-                                        <span className={STATUS_BADGES[order.status] || 'badge badge-info'}>
-                                            {order.status === 'PENDING' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1.5 inline-block" />}
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td className="text-right" onClick={e => e.stopPropagation()}>
-                                        <div className="flex items-center justify-end space-x-2">
-                                            {getNextAction(order)}
-                                            <button
-                                                onClick={() => navigate(`/orders/${order.id}`)}
-                                                className="text-surface-400 hover:text-brand-400 p-1.5 hover:bg-brand-500/10 rounded-lg transition-all"
-                                                title="View details"
-                                            >
-                                                <EyeIcon className="w-4 h-4" />
-                                            </button>
+                                    <div className="flex items-center space-x-4 flex-1 min-w-0">
+                                        <div className="w-11 h-11 rounded-xl bg-surface-700/50 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-xs font-bold text-brand-400">#{String(order.id).padStart(4, '0')}</span>
                                         </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-surface-200 group-hover:text-white transition-colors truncate">
+                                                {order.customerName || 'Walk-in Customer'}
+                                            </p>
+                                            <p className="text-xs text-surface-500">
+                                                {new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-4">
+                                        <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wide ${cfg.bg} ${cfg.text}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${order.status === 'PENDING' ? 'animate-pulse' : ''}`} />
+                                            <span>{cfg.label}</span>
+                                        </span>
+                                        <span className="text-sm font-bold text-white w-20 text-right">${order.totalAmount?.toFixed(2)}</span>
+                                        <div className="hidden sm:flex items-center space-x-2" onClick={e => e.stopPropagation()}>
+                                            {getNextAction(order)}
+                                        </div>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/orders/${order.id}`); }}
+                                            className="text-surface-400 hover:text-brand-400 p-1.5 hover:bg-brand-500/10 rounded-lg transition-all"
+                                            title="View details"
+                                        >
+                                            <EyeIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             {totalPages > 1 && (
@@ -270,7 +291,12 @@ export default function Orders() {
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                     <div className="modal-content max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between p-6 border-b border-surface-700/30 sticky top-0 bg-surface-800 z-10 rounded-t-2xl">
-                            <h2 className="text-lg font-bold text-white">Create New Order</h2>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-xl bg-brand-500/15 flex items-center justify-center">
+                                    <ShoppingCartIcon className="w-5 h-5 text-brand-400" />
+                                </div>
+                                <h2 className="text-lg font-bold text-white">Create New Order</h2>
+                            </div>
                             <button onClick={() => setIsModalOpen(false)} className="text-surface-400 hover:text-surface-200 p-1 hover:bg-surface-700/50 rounded-lg transition-colors">
                                 <XMarkIcon className="w-5 h-5" />
                             </button>
@@ -331,7 +357,7 @@ export default function Orders() {
 
                             <div className="flex justify-end space-x-3 pt-4 border-t border-surface-700/30">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancel</button>
-                                <button type="submit" className="btn-primary">Create Order</button>
+                                <button type="submit" className="btn-primary">Place Order</button>
                             </div>
                         </form>
                     </div>

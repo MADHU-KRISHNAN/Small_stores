@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import {
     ArrowLeftIcon,
@@ -11,16 +11,18 @@ import {
     UserIcon,
     CalendarIcon,
     CurrencyDollarIcon,
+    CubeIcon,
+    ReceiptRefundIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
-    PENDING: { color: 'text-amber-400', bg: 'bg-amber-500/10', icon: ClockIcon, label: 'Pending' },
-    CONFIRMED: { color: 'text-blue-400', bg: 'bg-blue-500/10', icon: CheckCircleIcon, label: 'Confirmed' },
-    SHIPPED: { color: 'text-purple-400', bg: 'bg-purple-500/10', icon: TruckIcon, label: 'Shipped' },
-    DELIVERED: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: HomeIcon, label: 'Delivered' },
-    COMPLETED: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircleIcon, label: 'Completed' },
-    CANCELLED: { color: 'text-red-400', bg: 'bg-red-500/10', icon: XCircleIcon, label: 'Cancelled' },
+    PENDING: { color: 'text-amber-400', bg: 'bg-amber-500/10', ring: 'ring-amber-500/20', icon: ClockIcon, label: 'Pending' },
+    CONFIRMED: { color: 'text-blue-400', bg: 'bg-blue-500/10', ring: 'ring-blue-500/20', icon: CheckCircleIcon, label: 'Confirmed' },
+    SHIPPED: { color: 'text-purple-400', bg: 'bg-purple-500/10', ring: 'ring-purple-500/20', icon: TruckIcon, label: 'Shipped' },
+    DELIVERED: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/20', icon: HomeIcon, label: 'Delivered' },
+    COMPLETED: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/20', icon: CheckCircleIcon, label: 'Completed' },
+    CANCELLED: { color: 'text-red-400', bg: 'bg-red-500/10', ring: 'ring-red-500/20', icon: XCircleIcon, label: 'Cancelled' },
 };
 
 const TRANSITIONS = {
@@ -112,7 +114,7 @@ export default function OrderDetail() {
                         </p>
                     </div>
                 </div>
-                <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${config.bg}`}>
+                <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${config.bg} ring-1 ${config.ring}`}>
                     <StatusIcon className={`w-5 h-5 ${config.color}`} />
                     <span className={`font-semibold text-sm ${config.color}`}>{config.label}</span>
                 </div>
@@ -123,7 +125,6 @@ export default function OrderDetail() {
                 <div className="glass-card-solid p-6">
                     <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-6">Order Timeline</h3>
                     <div className="flex items-center justify-between relative">
-                        {/* Progress line */}
                         <div className="absolute top-5 left-6 right-6 h-0.5 bg-surface-700">
                             <div
                                 className="h-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-500"
@@ -138,10 +139,10 @@ export default function OrderDetail() {
                             return (
                                 <div key={step} className="flex flex-col items-center relative z-10">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isCurrent
-                                            ? 'bg-brand-500 shadow-glow ring-4 ring-brand-500/20'
-                                            : isComplete
-                                                ? 'bg-brand-500/20 border-2 border-brand-400'
-                                                : 'bg-surface-800 border-2 border-surface-700'
+                                        ? 'bg-brand-500 shadow-glow ring-4 ring-brand-500/20'
+                                        : isComplete
+                                            ? 'bg-brand-500/20 border-2 border-brand-400'
+                                            : 'bg-surface-800 border-2 border-surface-700'
                                         }`}>
                                         <StepIcon className={`w-4 h-4 ${isComplete ? 'text-brand-400' : 'text-surface-500'}`} />
                                     </div>
@@ -169,9 +170,9 @@ export default function OrderDetail() {
                                     key={status}
                                     onClick={() => handleStatusUpdate(status)}
                                     disabled={updating}
-                                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${isCancel
-                                            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
-                                            : 'bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 border border-brand-500/20'
+                                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ring-1 ${isCancel
+                                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 ring-red-500/20'
+                                        : 'bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 ring-brand-500/20'
                                         } disabled:opacity-50`}
                                 >
                                     <BtnIcon className="w-4 h-4" />
@@ -184,52 +185,43 @@ export default function OrderDetail() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Order Items */}
+                {/* Order Items — Receipt Style */}
                 <div className="lg:col-span-2 glass-card-solid overflow-hidden">
-                    <div className="p-6 border-b border-surface-700/30">
-                        <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider">Order Items</h3>
+                    <div className="p-6 border-b border-surface-700/30 flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-500/15 flex items-center justify-center">
+                            <ReceiptRefundIcon className="w-4 h-4 text-brand-400" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-surface-300 uppercase tracking-wider">Order Items</h3>
                     </div>
-                    <table className="table-dark">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th className="text-center">Qty</th>
-                                <th className="text-right">Price</th>
-                                <th className="text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.orderItems?.map(item => (
-                                <tr key={item.id}>
-                                    <td className="text-surface-200 font-medium">{item.productName}</td>
-                                    <td className="text-center">
-                                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-surface-700/50 text-xs text-surface-300 font-semibold">
-                                            {item.quantity}
-                                        </span>
-                                    </td>
-                                    <td className="text-right text-surface-400">${item.price?.toFixed(2)}</td>
-                                    <td className="text-right text-white font-semibold">
-                                        ${(item.price * item.quantity).toFixed(2)}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr className="border-t-2 border-surface-700/50">
-                                <td colSpan={3} className="text-right font-semibold text-surface-300">Total</td>
-                                <td className="text-right text-xl font-bold text-white">${order.totalAmount?.toFixed(2)}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <div className="divide-y divide-surface-700/20">
+                        {order.orderItems?.map((item, idx) => (
+                            <div key={item.id} className="flex items-center justify-between px-6 py-4 animate-fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 rounded-xl bg-surface-700/50 flex items-center justify-center">
+                                        <CubeIcon className="w-5 h-5 text-brand-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-surface-200">{item.productName}</p>
+                                        <p className="text-xs text-surface-500">${item.price?.toFixed(2)} × {item.quantity}</p>
+                                    </div>
+                                </div>
+                                <p className="text-sm font-bold text-white">${(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                        ))}
+                    </div>
+                    {/* Total */}
+                    <div className="px-6 py-4 bg-surface-900/30 border-t border-surface-700/30 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-surface-300">Order Total</span>
+                        <span className="text-xl font-bold text-white">${order.totalAmount?.toFixed(2)}</span>
+                    </div>
                 </div>
 
                 {/* Sidebar Info */}
                 <div className="space-y-4">
-                    {/* Customer */}
                     <div className="glass-card-solid p-6">
                         <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">Customer</h3>
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-brand-500/15 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-brand-500/15 flex items-center justify-center ring-1 ring-brand-500/20">
                                 <UserIcon className="w-5 h-5 text-brand-400" />
                             </div>
                             <div>
@@ -239,7 +231,6 @@ export default function OrderDetail() {
                         </div>
                     </div>
 
-                    {/* Order Info */}
                     <div className="glass-card-solid p-6">
                         <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">Details</h3>
                         <div className="space-y-3">
@@ -260,7 +251,7 @@ export default function OrderDetail() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <StatusIcon className="w-4 h-4 text-surface-500" />
+                                <CubeIcon className="w-4 h-4 text-surface-500" />
                                 <div>
                                     <p className="text-xs text-surface-500">Items Count</p>
                                     <p className="text-sm text-surface-200">{order.orderItems?.length || 0} items</p>

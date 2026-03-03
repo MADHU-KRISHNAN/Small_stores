@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { BuildingStorefrontIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -73,7 +73,7 @@ export default function Register() {
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-brand-900 via-surface-900 to-surface-950">
                 <div className="absolute top-20 left-20 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
                 <div className="absolute bottom-32 right-16 w-96 h-96 bg-brand-600/8 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-                <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-brand-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
+                <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-accent-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
 
                 <div className="absolute inset-0 opacity-[0.03]" style={{
                     backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
@@ -83,7 +83,7 @@ export default function Register() {
                 <div className="relative z-10 flex flex-col justify-center px-16 xl:px-24">
                     <div className="flex items-center space-x-3 mb-8">
                         <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow-lg">
-                            <SparklesIcon className="w-7 h-7 text-white" />
+                            <BuildingStorefrontIcon className="w-7 h-7 text-white" />
                         </div>
                         <span className="text-3xl font-bold gradient-text">SmallStores</span>
                     </div>
@@ -94,7 +94,7 @@ export default function Register() {
                     </h1>
 
                     <p className="text-lg text-surface-400 max-w-md leading-relaxed mb-10">
-                        Set up your store in under a minute. Track inventory, manage customers, and process orders — all from one powerful dashboard.
+                        Set up your store in under a minute. Track inventory, manage customers, and process orders — all from one powerful dashboard built for small businesses.
                     </p>
 
                     <div className="flex items-center space-x-8">
@@ -118,7 +118,7 @@ export default function Register() {
                     {/* Mobile logo */}
                     <div className="lg:hidden flex items-center justify-center space-x-3 mb-10">
                         <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow">
-                            <SparklesIcon className="w-6 h-6 text-white" />
+                            <BuildingStorefrontIcon className="w-6 h-6 text-white" />
                         </div>
                         <span className="text-2xl font-bold gradient-text">SmallStores</span>
                     </div>

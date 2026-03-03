@@ -15,7 +15,6 @@ import {
     TagIcon,
     TruckIcon,
     ChartBarIcon,
-    EyeIcon,
     FireIcon,
     BoltIcon,
     StarIcon,
@@ -34,7 +33,6 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-// Ecommerce-style quick stat pill
 const QuickStat = ({ icon: Icon, label, value, color, delay = 0 }) => (
     <div
         className="flex items-center space-x-2.5 px-3.5 py-2 rounded-xl bg-surface-800/60 border border-surface-700/30 animate-fade-in"
@@ -50,7 +48,6 @@ const QuickStat = ({ icon: Icon, label, value, color, delay = 0 }) => (
     </div>
 );
 
-// Order status dot colors
 const STATUS_DOTS = {
     PENDING: 'bg-amber-400',
     CONFIRMED: 'bg-blue-400',
@@ -69,7 +66,7 @@ const STATUS_BG = {
     CANCELLED: 'bg-red-500/10 text-red-400',
 };
 
-const PIE_COLORS = ['#8b5cf6', '#6366f1', '#a78bfa', '#c4b5fd', '#818cf8'];
+const PIE_COLORS = ['#14b8a6', '#0d9488', '#2dd4bf', '#5eead4', '#0f766e'];
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -134,7 +131,6 @@ export default function Dashboard() {
 
     const avgOrderValue = stats.newOrders > 0 ? (stats.totalRevenue / stats.newOrders) : 0;
 
-    // Prepare pie chart data from top products
     const pieData = topProducts.slice(0, 5).map(p => ({
         name: p.productName,
         value: parseFloat(p.totalRevenue) || 0
@@ -143,18 +139,12 @@ export default function Dashboard() {
     if (loading) {
         return (
             <div className="space-y-6">
-                {/* Skeleton header */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-2">
                         <div className="h-8 w-72 shimmer" />
                         <div className="h-4 w-48 shimmer" />
                     </div>
-                    <div className="flex space-x-3">
-                        <div className="h-10 w-28 shimmer rounded-xl" />
-                        <div className="h-10 w-28 shimmer rounded-xl" />
-                    </div>
                 </div>
-                {/* Skeleton stat cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {[...Array(4)].map((_, i) => (
                         <div key={i} className="glass-card-solid p-6 space-y-3">
@@ -175,15 +165,14 @@ export default function Dashboard() {
         <div className="space-y-8">
             {/* ===== HERO WELCOME BANNER ===== */}
             <div className="relative overflow-hidden glass-card-solid p-6 lg:p-8">
-                {/* Decorative gradient orbs */}
                 <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-emerald-500/8 rounded-full blur-3xl" />
+                <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-accent-500/8 rounded-full blur-3xl" />
 
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div>
                         <div className="flex items-center space-x-2 mb-2">
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                            <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider">Store Active</span>
+                            <div className="w-2 h-2 bg-brand-400 rounded-full animate-pulse" />
+                            <span className="text-xs font-medium text-brand-400 uppercase tracking-wider">Store Active</span>
                         </div>
                         <h1 className="text-2xl lg:text-3xl font-bold text-white">
                             {getGreeting()}, <span className="gradient-text">{user?.username}</span> 👋
@@ -193,7 +182,6 @@ export default function Dashboard() {
                         </p>
                     </div>
 
-                    {/* Quick action pills */}
                     <div className="flex flex-wrap gap-2.5">
                         {stats.pendingOrders > 0 && (
                             <button
@@ -202,7 +190,6 @@ export default function Dashboard() {
                             >
                                 <ClockIcon className="w-4 h-4 text-amber-400" />
                                 <span className="text-xs font-semibold text-amber-400">{stats.pendingOrders} Pending Orders</span>
-                                <ArrowUpIcon className="w-3 h-3 text-amber-400/50 group-hover:translate-x-0.5 transition-transform rotate-90" />
                             </button>
                         )}
                         {stats.lowStockCount > 0 && (
@@ -212,7 +199,6 @@ export default function Dashboard() {
                             >
                                 <ExclamationTriangleIcon className="w-4 h-4 text-red-400" />
                                 <span className="text-xs font-semibold text-red-400">{stats.lowStockCount} Low Stock</span>
-                                <ArrowUpIcon className="w-3 h-3 text-red-400/50 group-hover:translate-x-0.5 transition-transform rotate-90" />
                             </button>
                         )}
                     </div>
@@ -221,11 +207,10 @@ export default function Dashboard() {
 
             {/* ===== KEY METRICS ROW ===== */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {/* Total Revenue */}
-                <div className="glass-card-solid p-6 hover:border-emerald-500/20 transition-all duration-300 group animate-fade-in-up">
+                <div className="glass-card-solid p-6 hover:border-brand-500/20 transition-all duration-300 group animate-fade-in-up">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-emerald-500/20">
-                            <CurrencyDollarIcon className="w-6 h-6 text-emerald-400" />
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-brand-500/20">
+                            <CurrencyDollarIcon className="w-6 h-6 text-brand-400" />
                         </div>
                         <div className="flex items-center space-x-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg">
                             <ArrowUpIcon className="w-3 h-3" />
@@ -236,7 +221,6 @@ export default function Dashboard() {
                     <p className="text-xs text-surface-400 mt-1">Total Revenue</p>
                 </div>
 
-                {/* Total Orders */}
                 <div className="glass-card-solid p-6 hover:border-blue-500/20 transition-all duration-300 group animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                     <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-blue-500/20">
@@ -251,13 +235,12 @@ export default function Dashboard() {
                     <p className="text-xs text-surface-400 mt-1">Total Orders</p>
                 </div>
 
-                {/* Customers */}
-                <div className="glass-card-solid p-6 hover:border-brand-500/20 transition-all duration-300 group animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                <div className="glass-card-solid p-6 hover:border-accent-500/20 transition-all duration-300 group animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-brand-500/20">
-                            <UsersIcon className="w-6 h-6 text-brand-400" />
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-500/20 to-accent-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-accent-500/20">
+                            <UsersIcon className="w-6 h-6 text-accent-400" />
                         </div>
-                        <div className="flex items-center space-x-1 text-xs font-semibold text-brand-400 bg-brand-500/10 px-2 py-1 rounded-lg">
+                        <div className="flex items-center space-x-1 text-xs font-semibold text-accent-400 bg-accent-500/10 px-2 py-1 rounded-lg">
                             <ArrowUpIcon className="w-3 h-3" />
                             <span>3.1%</span>
                         </div>
@@ -266,11 +249,10 @@ export default function Dashboard() {
                     <p className="text-xs text-surface-400 mt-1">Customers</p>
                 </div>
 
-                {/* Avg Order Value */}
-                <div className="glass-card-solid p-6 hover:border-amber-500/20 transition-all duration-300 group animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                <div className="glass-card-solid p-6 hover:border-brand-500/20 transition-all duration-300 group animate-fade-in-up" style={{ animationDelay: '300ms' }}>
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-amber-500/20">
-                            <TagIcon className="w-6 h-6 text-amber-400" />
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ring-1 ring-brand-500/20">
+                            <TagIcon className="w-6 h-6 text-brand-400" />
                         </div>
                         <div className="flex items-center space-x-1 text-xs font-semibold text-surface-500 bg-surface-700/50 px-2 py-1 rounded-lg">
                             <span>AOV</span>
@@ -291,7 +273,6 @@ export default function Dashboard() {
 
             {/* ===== CHARTS ROW ===== */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Revenue Chart */}
                 <div className="lg:col-span-2 glass-card-solid overflow-hidden animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                     <div className="flex items-center justify-between p-6 pb-0">
                         <div className="flex items-center space-x-3">
@@ -314,17 +295,17 @@ export default function Dashboard() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={salesData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                     <defs>
-                                        <linearGradient id="colorRevenuePremium" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
-                                            <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        <linearGradient id="colorRevenueTeal" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#14b8a6" stopOpacity={0.35} />
+                                            <stop offset="50%" stopColor="#14b8a6" stopOpacity={0.1} />
+                                            <stop offset="100%" stopColor="#14b8a6" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(71, 85, 105, 0.2)" />
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(139, 92, 246, 0.2)', strokeWidth: 1 }} />
-                                    <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenuePremium)" dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#1e293b' }} activeDot={{ r: 6, fill: '#a78bfa', stroke: '#1e293b', strokeWidth: 3 }} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(20, 184, 166, 0.2)', strokeWidth: 1 }} />
+                                    <Area type="monotone" dataKey="revenue" stroke="#14b8a6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenueTeal)" dot={{ r: 4, fill: '#14b8a6', strokeWidth: 2, stroke: '#1e293b' }} activeDot={{ r: 6, fill: '#2dd4bf', stroke: '#1e293b', strokeWidth: 3 }} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
@@ -337,12 +318,12 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Revenue Breakdown Pie + Best Sellers */}
+                {/* Best Sellers */}
                 <div className="glass-card-solid overflow-hidden animate-fade-in-up" style={{ animationDelay: '500ms' }}>
                     <div className="p-6 pb-0">
                         <div className="flex items-center space-x-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center ring-1 ring-amber-500/20">
-                                <FireIcon className="w-5 h-5 text-amber-400" />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-accent-600/10 flex items-center justify-center ring-1 ring-accent-500/20">
+                                <FireIcon className="w-5 h-5 text-accent-400" />
                             </div>
                             <div>
                                 <h2 className="text-base font-semibold text-white">Best Sellers</h2>
@@ -353,7 +334,6 @@ export default function Dashboard() {
 
                     {topProducts.length > 0 ? (
                         <div className="px-6 pb-6">
-                            {/* Mini pie chart */}
                             {pieData.length > 0 && (
                                 <div className="flex justify-center mb-4">
                                     <div className="w-32 h-32">
@@ -369,7 +349,6 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             )}
-                            {/* Product list */}
                             <div className="space-y-3">
                                 {topProducts.map((product, idx) => {
                                     const maxRevenue = topProducts[0]?.totalRevenue || 1;
@@ -407,7 +386,7 @@ export default function Dashboard() {
 
             {/* ===== RECENT ORDERS + LOW STOCK ===== */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Orders — Ecommerce style */}
+                {/* Recent Orders */}
                 <div className="glass-card-solid overflow-hidden animate-fade-in-up" style={{ animationDelay: '600ms' }}>
                     <div className="flex items-center justify-between p-6 pb-4 border-b border-surface-700/30">
                         <div className="flex items-center space-x-3">
@@ -419,10 +398,7 @@ export default function Dashboard() {
                                 <p className="text-xs text-surface-500">Latest customer orders</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => navigate('/orders')}
-                            className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center space-x-1 transition-colors"
-                        >
+                        <button onClick={() => navigate('/orders')} className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center space-x-1 transition-colors">
                             <span>View All</span>
                             <ArrowUpIcon className="w-3 h-3 rotate-90" />
                         </button>
@@ -470,7 +446,7 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                {/* Low Stock / Restock Alerts — Ecommerce style */}
+                {/* Restock Alerts */}
                 <div className="glass-card-solid overflow-hidden animate-fade-in-up" style={{ animationDelay: '700ms' }}>
                     <div className="flex items-center justify-between p-6 pb-4 border-b border-surface-700/30">
                         <div className="flex items-center space-x-3">
@@ -482,10 +458,7 @@ export default function Dashboard() {
                                 <p className="text-xs text-surface-500">{lowStockItems.length} products need attention</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => navigate('/inventory')}
-                            className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center space-x-1 transition-colors"
-                        >
+                        <button onClick={() => navigate('/inventory')} className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center space-x-1 transition-colors">
                             <span>Manage</span>
                             <ArrowUpIcon className="w-3 h-3 rotate-90" />
                         </button>
@@ -496,11 +469,7 @@ export default function Dashboard() {
                             {lowStockItems.map((product, idx) => {
                                 const isOut = product.stock === 0;
                                 return (
-                                    <div
-                                        key={product.id}
-                                        className="flex items-center justify-between px-6 py-4 animate-fade-in"
-                                        style={{ animationDelay: `${idx * 60}ms` }}
-                                    >
+                                    <div key={product.id} className="flex items-center justify-between px-6 py-4 animate-fade-in" style={{ animationDelay: `${idx * 60}ms` }}>
                                         <div className="flex items-center space-x-4">
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isOut ? 'bg-red-500/10 ring-1 ring-red-500/20' : 'bg-amber-500/10 ring-1 ring-amber-500/20'}`}>
                                                 <ArchiveBoxIcon className={`w-5 h-5 ${isOut ? 'text-red-400' : 'text-amber-400'}`} />
@@ -510,10 +479,8 @@ export default function Dashboard() {
                                                 <p className="text-xs text-surface-500">{product.category || 'Uncategorized'}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-3">
-                                            <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${isOut ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
-                                                {isOut ? 'OUT OF STOCK' : `${product.stock} left`}
-                                            </div>
+                                        <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${isOut ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
+                                            {isOut ? 'OUT OF STOCK' : `${product.stock} left`}
                                         </div>
                                     </div>
                                 );

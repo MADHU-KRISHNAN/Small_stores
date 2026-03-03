@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import { PlusIcon, TrashIcon, XMarkIcon, MagnifyingGlassIcon, UsersIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, XMarkIcon, MagnifyingGlassIcon, UsersIcon, EnvelopeIcon, PhoneIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 export default function Customers() {
@@ -45,10 +45,10 @@ export default function Customers() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Delete this customer?")) {
+        if (window.confirm("Remove this customer?")) {
             try {
                 await api.delete(`/customers/${id}`);
-                toast.success('Customer deleted');
+                toast.success('Customer removed');
                 fetchCustomers();
             } catch (error) {
                 toast.error('Failed to delete customer');
@@ -69,7 +69,7 @@ export default function Customers() {
         'from-brand-500 to-brand-700',
         'from-emerald-500 to-emerald-700',
         'from-blue-500 to-blue-700',
-        'from-amber-500 to-amber-700',
+        'from-accent-500 to-accent-700',
         'from-pink-500 to-pink-700',
     ];
 
@@ -80,13 +80,12 @@ export default function Customers() {
                     <div className="h-8 w-40 shimmer" />
                     <div className="h-10 w-36 shimmer" />
                 </div>
-                <div className="glass-card-solid overflow-hidden">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="flex items-center space-x-4 px-6 py-4 border-b border-surface-800/50">
-                            <div className="h-9 w-9 rounded-full shimmer" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="glass-card-solid p-5 space-y-3">
+                            <div className="h-12 w-12 rounded-full shimmer" />
                             <div className="h-4 w-32 shimmer" />
-                            <div className="h-4 w-40 shimmer" />
-                            <div className="h-4 w-28 shimmer" />
+                            <div className="h-3 w-40 shimmer" />
                         </div>
                     ))}
                 </div>
@@ -99,7 +98,7 @@ export default function Customers() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Customers</h1>
-                    <p className="text-sm text-surface-400 mt-1">{totalElements} total customers</p>
+                    <p className="text-sm text-surface-400 mt-1">{totalElements} registered customers</p>
                 </div>
                 <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center space-x-2">
                     <PlusIcon className="w-5 h-5" />
@@ -118,60 +117,52 @@ export default function Customers() {
                 />
             </div>
 
-            <div className="glass-card-solid overflow-hidden">
-                <table className="table-dark">
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th className="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredCustomers.length === 0 ? (
-                            <tr>
-                                <td colSpan={4}>
-                                    <div className="flex flex-col items-center justify-center py-12 text-surface-500">
-                                        <UsersIcon className="w-12 h-12 mb-3 opacity-30" />
-                                        <p className="text-sm">No customers found</p>
+            {/* Customer Cards Grid */}
+            {filteredCustomers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-surface-500">
+                    <UserGroupIcon className="w-16 h-16 mb-4 opacity-20" />
+                    <p className="text-sm font-medium">No customers found</p>
+                    <p className="text-xs text-surface-600 mt-1">
+                        {search ? 'Try a different search term' : 'Add your first customer to get started'}
+                    </p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredCustomers.map((customer, index) => (
+                        <div
+                            key={customer.id}
+                            className="glass-card-solid p-5 hover:border-brand-500/20 transition-all duration-300 group animate-fade-in-up"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${avatarColors[index % avatarColors.length]} flex items-center justify-center text-white text-sm font-bold shadow-glow flex-shrink-0`}>
+                                        {getInitials(customer.name)}
                                     </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredCustomers.map((customer, index) => (
-                                <tr key={customer.id} className="animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
-                                    <td>
-                                        <div className="flex items-center space-x-3">
-                                            <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarColors[index % avatarColors.length]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                                                {getInitials(customer.name)}
-                                            </div>
-                                            <span className="font-medium text-surface-200">{customer.name}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="flex items-center space-x-2 text-surface-400">
-                                            <EnvelopeIcon className="w-4 h-4 flex-shrink-0" />
-                                            <span>{customer.email}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="flex items-center space-x-2 text-surface-400">
-                                            <PhoneIcon className="w-4 h-4 flex-shrink-0" />
-                                            <span>{customer.phone}</span>
-                                        </div>
-                                    </td>
-                                    <td className="text-right">
-                                        <button onClick={() => handleDelete(customer.id)} className="btn-danger">
-                                            <TrashIcon className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">{customer.name}</p>
+                                        <p className="text-xs text-surface-500">Customer</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => handleDelete(customer.id)} className="btn-danger opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <TrashIcon className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-2 pt-3 border-t border-surface-700/30">
+                                <div className="flex items-center space-x-2.5 text-surface-400">
+                                    <EnvelopeIcon className="w-4 h-4 flex-shrink-0 text-surface-500" />
+                                    <span className="text-xs truncate">{customer.email}</span>
+                                </div>
+                                <div className="flex items-center space-x-2.5 text-surface-400">
+                                    <PhoneIcon className="w-4 h-4 flex-shrink-0 text-surface-500" />
+                                    <span className="text-xs">{customer.phone}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {totalPages > 1 && (
                 <div className="flex items-center justify-between">
@@ -187,7 +178,12 @@ export default function Customers() {
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                     <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between p-6 border-b border-surface-700/30">
-                            <h2 className="text-lg font-bold text-white">Add New Customer</h2>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-xl bg-brand-500/15 flex items-center justify-center">
+                                    <UsersIcon className="w-5 h-5 text-brand-400" />
+                                </div>
+                                <h2 className="text-lg font-bold text-white">Add New Customer</h2>
+                            </div>
                             <button onClick={() => setIsModalOpen(false)} className="text-surface-400 hover:text-surface-200 p-1 hover:bg-surface-700/50 rounded-lg transition-colors">
                                 <XMarkIcon className="w-5 h-5" />
                             </button>

@@ -6,7 +6,7 @@ import {
     ShoppingCartIcon,
     ArrowRightOnRectangleIcon,
     XMarkIcon,
-    SparklesIcon,
+    BuildingStorefrontIcon,
     ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
@@ -32,7 +32,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="h-16 flex items-center justify-between px-6 border-b border-surface-700/30">
                 <Link to="/dashboard" className="flex items-center space-x-3 group">
                     <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
-                        <SparklesIcon className="w-5 h-5 text-white" />
+                        <BuildingStorefrontIcon className="w-5 h-5 text-white" />
                     </div>
                     <span className="text-xl font-bold gradient-text">SmallStores</span>
                 </Link>
@@ -43,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-                <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-3">Menu</p>
+                <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-3">Store Management</p>
                 {navItems.map((item, index) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;

@@ -4,9 +4,11 @@ import { Bars3Icon, BellIcon, MagnifyingGlassIcon } from '@heroicons/react/24/ou
 
 const pageTitles = {
     '/dashboard': 'Dashboard',
-    '/products': 'Products',
+    '/products': 'Product Catalog',
     '/customers': 'Customers',
-    '/orders': 'Orders',
+    '/orders': 'Order Management',
+    '/inventory': 'Inventory',
+    '/store': 'Store Profile',
 };
 
 export default function Navbar({ onMenuToggle }) {
@@ -37,7 +39,7 @@ export default function Navbar({ onMenuToggle }) {
                     <MagnifyingGlassIcon className="w-4 h-4 text-surface-500 flex-shrink-0" />
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder="Search products, orders..."
                         className="bg-transparent text-sm text-surface-300 placeholder-surface-500 outline-none w-full"
                     />
                 </div>
@@ -47,8 +49,6 @@ export default function Navbar({ onMenuToggle }) {
                     <BellIcon className="w-5 h-5" />
                     <span className="absolute top-1 right-1 w-2 h-2 bg-brand-500 rounded-full animate-pulse-glow" />
                 </button>
-
-
             </div>
         </header>
     );

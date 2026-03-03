@@ -8,6 +8,7 @@ import {
     CheckIcon,
     XMarkIcon,
     MagnifyingGlassIcon,
+    CubeIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -82,14 +83,19 @@ export default function Inventory() {
 
     const displayProducts = getDisplayProducts();
 
-    // Summary stats
     const lowStockCount = lowStock.filter(p => p.stock > 0).length;
     const outOfStockCount = lowStock.filter(p => p.stock === 0).length;
 
     const getStockStyle = (stock) => {
-        if (stock === 0) return 'text-red-400 bg-red-500/10';
-        if (stock <= 10) return 'text-amber-400 bg-amber-500/10';
-        return 'text-emerald-400 bg-emerald-500/10';
+        if (stock === 0) return 'text-red-400 bg-red-500/10 ring-1 ring-red-500/20';
+        if (stock <= 10) return 'text-amber-400 bg-amber-500/10 ring-1 ring-amber-500/20';
+        return 'text-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-500/20';
+    };
+
+    const getStockLabel = (stock) => {
+        if (stock === 0) return 'Out of stock';
+        if (stock <= 10) return `${stock} left`;
+        return `${stock} in stock`;
     };
 
     if (loading) {
@@ -112,10 +118,9 @@ export default function Inventory() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold text-white">Inventory</h1>
-                <p className="text-sm text-surface-400 mt-1">Monitor stock levels and manage inventory</p>
+                <p className="text-sm text-surface-400 mt-1">Monitor stock levels and manage your warehouse</p>
             </div>
 
             {/* Summary Cards */}
@@ -126,7 +131,7 @@ export default function Inventory() {
                             <p className="text-xs text-surface-400 uppercase tracking-wider">Total SKUs</p>
                             <p className="text-2xl font-bold text-white mt-1">{totalElements}</p>
                         </div>
-                        <div className="w-11 h-11 rounded-xl bg-brand-500/15 flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-brand-500/15 flex items-center justify-center ring-1 ring-brand-500/20">
                             <ArchiveBoxIcon className="w-5 h-5 text-brand-400" />
                         </div>
                     </div>
@@ -137,7 +142,7 @@ export default function Inventory() {
                             <p className="text-xs text-surface-400 uppercase tracking-wider">Low Stock</p>
                             <p className="text-2xl font-bold text-amber-400 mt-1">{lowStockCount}</p>
                         </div>
-                        <div className="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center ring-1 ring-amber-500/20">
                             <ExclamationTriangleIcon className="w-5 h-5 text-amber-400" />
                         </div>
                     </div>
@@ -148,7 +153,7 @@ export default function Inventory() {
                             <p className="text-xs text-surface-400 uppercase tracking-wider">Out of Stock</p>
                             <p className="text-2xl font-bold text-red-400 mt-1">{outOfStockCount}</p>
                         </div>
-                        <div className="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center ring-1 ring-red-500/20">
                             <XCircleIcon className="w-5 h-5 text-red-400" />
                         </div>
                     </div>
@@ -186,85 +191,75 @@ export default function Inventory() {
                 </div>
             </div>
 
-            {/* Table */}
+            {/* Inventory List */}
             <div className="glass-card-solid overflow-hidden">
-                <table className="table-dark">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th className="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {displayProducts.length === 0 ? (
-                            <tr>
-                                <td colSpan={5}>
-                                    <div className="flex flex-col items-center justify-center py-12 text-surface-500">
-                                        <ArchiveBoxIcon className="w-12 h-12 mb-3 opacity-30" />
-                                        <p className="text-sm">No products found</p>
-                                        <p className="text-xs text-surface-600 mt-1">
-                                            {activeTab !== 'all' ? 'Switch tab to see all products' : 'Add products to get started'}
-                                        </p>
+                {displayProducts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-surface-500">
+                        <ArchiveBoxIcon className="w-16 h-16 mb-4 opacity-20" />
+                        <p className="text-sm font-medium">No products found</p>
+                        <p className="text-xs text-surface-600 mt-1">
+                            {activeTab !== 'all' ? 'Switch tab to see all products' : 'Add products to get started'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-surface-700/20">
+                        {displayProducts.map((product, index) => (
+                            <div
+                                key={product.id}
+                                className="flex items-center justify-between px-6 py-4 hover:bg-surface-800/30 transition-colors animate-fade-in"
+                                style={{ animationDelay: `${index * 30}ms` }}
+                            >
+                                <div className="flex items-center space-x-4 flex-1 min-w-0">
+                                    <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center flex-shrink-0 ring-1 ring-brand-500/20">
+                                        <CubeIcon className="w-5 h-5 text-brand-400" />
                                     </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            displayProducts.map((product, index) => (
-                                <tr key={product.id} className="animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
-                                    <td>
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-9 h-9 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
-                                                <ArchiveBoxIcon className="w-4 h-4 text-brand-400" />
-                                            </div>
-                                            <div>
-                                                <span className="font-medium text-surface-200">{product.name}</span>
-                                                {product.sku && <p className="text-xs text-surface-500">SKU: {product.sku}</p>}
-                                            </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-surface-200 truncate">{product.name}</p>
+                                        <div className="flex items-center space-x-2 mt-0.5">
+                                            <span className="badge badge-info text-[10px]">{product.category || 'Uncategorized'}</span>
+                                            {product.sku && <span className="text-[10px] text-surface-500">SKU: {product.sku}</span>}
                                         </div>
-                                    </td>
-                                    <td><span className="badge badge-info">{product.category || 'Uncategorized'}</span></td>
-                                    <td className="text-surface-200 font-medium">${product.price?.toFixed(2)}</td>
-                                    <td>
-                                        {editingId === product.id ? (
-                                            <div className="flex items-center space-x-2">
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={editStock}
-                                                    onChange={(e) => setEditStock(e.target.value)}
-                                                    className="input-dark w-20 !py-1.5 text-sm"
-                                                    autoFocus
-                                                />
-                                                <button onClick={() => handleStockUpdate(product.id)} className="text-emerald-400 hover:text-emerald-300 p-1">
-                                                    <CheckIcon className="w-4 h-4" />
-                                                </button>
-                                                <button onClick={() => setEditingId(null)} className="text-surface-500 hover:text-surface-300 p-1">
-                                                    <XMarkIcon className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStockStyle(product.stock)}`}>
-                                                {product.stock} units
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="text-right">
-                                        <button
-                                            onClick={() => { setEditingId(product.id); setEditStock(product.stock?.toString()); }}
-                                            className="text-surface-400 hover:text-brand-400 p-1.5 hover:bg-brand-500/10 rounded-lg transition-all"
-                                            title="Edit stock"
-                                        >
-                                            <PencilSquareIcon className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-sm font-medium text-surface-300 hidden sm:block">${product.price?.toFixed(2)}</span>
+
+                                    {editingId === product.id ? (
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={editStock}
+                                                onChange={(e) => setEditStock(e.target.value)}
+                                                className="input-dark w-20 !py-1.5 text-sm"
+                                                autoFocus
+                                            />
+                                            <button onClick={() => handleStockUpdate(product.id)} className="text-emerald-400 hover:text-emerald-300 p-1">
+                                                <CheckIcon className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => setEditingId(null)} className="text-surface-500 hover:text-surface-300 p-1">
+                                                <XMarkIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStockStyle(product.stock)}`}>
+                                            {getStockLabel(product.stock)}
+                                        </span>
+                                    )}
+
+                                    <button
+                                        onClick={() => { setEditingId(product.id); setEditStock(product.stock?.toString()); }}
+                                        className="text-surface-400 hover:text-brand-400 p-1.5 hover:bg-brand-500/10 rounded-lg transition-all"
+                                        title="Update stock"
+                                    >
+                                        <PencilSquareIcon className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Pagination */}

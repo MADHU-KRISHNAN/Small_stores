@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { BuildingStorefrontIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { ShoppingBagIcon, CubeIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -89,7 +90,7 @@ export default function Login() {
                 {/* Floating shapes */}
                 <div className="absolute top-20 left-20 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
                 <div className="absolute bottom-32 right-16 w-96 h-96 bg-brand-600/8 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-                <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-brand-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
+                <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-accent-400/5 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
 
                 {/* Grid pattern */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -101,29 +102,34 @@ export default function Login() {
                 <div className="relative z-10 flex flex-col justify-center px-16 xl:px-24">
                     <div className="flex items-center space-x-3 mb-8">
                         <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow-lg">
-                            <SparklesIcon className="w-7 h-7 text-white" />
+                            <BuildingStorefrontIcon className="w-7 h-7 text-white" />
                         </div>
                         <span className="text-3xl font-bold gradient-text">SmallStores</span>
                     </div>
 
                     <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-                        Manage your store<br />
-                        <span className="gradient-text">like a pro.</span>
+                        Your store,<br />
+                        <span className="gradient-text">simplified.</span>
                     </h1>
 
                     <p className="text-lg text-surface-400 max-w-md leading-relaxed mb-10">
-                        Inventory tracking, customer management, order processing — everything you need to run your retail business, all in one beautiful dashboard.
+                        Everything you need to run your retail business — inventory, customers, and orders — all in one beautiful dashboard built for small businesses.
                     </p>
 
                     <div className="flex items-center space-x-8">
                         {[
-                            { value: '10K+', label: 'Products Tracked' },
-                            { value: '99.9%', label: 'Uptime' },
-                            { value: '24/7', label: 'Support' },
+                            { icon: CubeIcon, value: 'Catalog', label: 'Management' },
+                            { icon: ShoppingBagIcon, value: 'Orders', label: 'Tracking' },
+                            { icon: UsersIcon, value: 'Customer', label: 'Insights' },
                         ].map((stat) => (
-                            <div key={stat.label}>
-                                <p className="text-2xl font-bold text-white">{stat.value}</p>
-                                <p className="text-xs text-surface-500 mt-1">{stat.label}</p>
+                            <div key={stat.label} className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-xl bg-brand-500/15 flex items-center justify-center ring-1 ring-brand-500/20">
+                                    <stat.icon className="w-5 h-5 text-brand-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-white">{stat.value}</p>
+                                    <p className="text-xs text-surface-500">{stat.label}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -136,7 +142,7 @@ export default function Login() {
                     {/* Mobile logo */}
                     <div className="lg:hidden flex items-center justify-center space-x-3 mb-10">
                         <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow">
-                            <SparklesIcon className="w-6 h-6 text-white" />
+                            <BuildingStorefrontIcon className="w-6 h-6 text-white" />
                         </div>
                         <span className="text-2xl font-bold gradient-text">SmallStores</span>
                     </div>
@@ -146,7 +152,7 @@ export default function Login() {
                             {isLogin ? 'Welcome back' : 'Create your store'}
                         </h2>
                         <p className="text-surface-400 mt-2 text-sm">
-                            {isLogin ? 'Sign in to continue to your dashboard' : 'Get started with SmallStores for free'}
+                            {isLogin ? 'Sign in to manage your store' : 'Get started with SmallStores for free'}
                         </p>
                     </div>
 
