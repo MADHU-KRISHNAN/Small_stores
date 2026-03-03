@@ -1,7 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { isAdmin, isCustomer } from '../utils/authUtils';
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, requiredRole }) {
     const { user, loading } = useAuth();
 
     if (loading) {
@@ -19,7 +20,19 @@ export default function ProtectedRoute({ children }) {
     }
 
     if (!user) {
-        return <Navigate to="/login" />;
+        // Redirect to appropriate login page
+        if (requiredRole === 'CUSTOMER') {
+            return <Navigate to="/login" />;
+        }
+        return <Navigate to="/admin/login" />;
+    }
+
+    // Role-based access control
+    if (requiredRole === 'ADMIN' && !isAdmin(user)) {
+        return <Navigate to="/shop" />;
+    }
+    if (requiredRole === 'CUSTOMER' && !isCustomer(user)) {
+        return <Navigate to="/admin/dashboard" />;
     }
 
     return children;

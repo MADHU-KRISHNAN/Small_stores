@@ -1,5 +1,6 @@
 package com.example.smallstores.security;
 
+import com.example.smallstores.entity.CustomerUser;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -30,16 +31,52 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    /**
+     * Generate JWT for admin/store-owner users (from Spring Security
+     * Authentication)
+     */
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
+        String role = userPrincipal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject(userPrincipal.getUsername())
                 .claim("storeId", userPrincipal.getStoreId())
+                .claim("role", role)
+                .claim("userId", userPrincipal.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /**
+     * Generate JWT for customer users (separate auth table)
+     */
+    public String generateCustomerJwtToken(CustomerUser customerUser) {
+        return Jwts.builder()
+                .setSubject(customerUser.getUsername())
+                .claim("role", "CUSTOMER")
+                .claim("userId", customerUser.getId())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String getRoleFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody();
+        Object roleClaim = claims.get("role");
+        return roleClaim != null ? roleClaim.toString() : null;
+    }
+
+    public Long getUserIdFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody();
+        Object userIdClaim = claims.get("userId");
+        return userIdClaim != null ? Long.valueOf(userIdClaim.toString()) : null;
     }
 
     public Long extractStoreId(String token) {
@@ -49,6 +86,12 @@ public class JwtUtils {
 
         if (storeIdClaim != null) {
             return Long.valueOf(storeIdClaim.toString());
+        }
+
+        // For customer tokens, there is no storeId
+        String role = getRoleFromJwtToken(token);
+        if ("CUSTOMER".equals(role)) {
+            return null;
         }
 
         String username = claims.getSubject();

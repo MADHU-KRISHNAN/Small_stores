@@ -184,7 +184,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setId(order.getId());
         dto.setOrderDate(order.getOrderDate());
         dto.setTotalAmount(order.getTotalAmount());
-        dto.setStatus(order.getStatus());
+        dto.setStatus(order.getStatus().name());
         dto.setNotes(order.getNotes());
         if (order.getCustomer() != null) {
             dto.setCustomerId(order.getCustomer().getId());

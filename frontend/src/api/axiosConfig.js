@@ -26,7 +26,18 @@ api.interceptors.response.use(
         if (status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            // Redirect to role-appropriate login page
+            const userData = localStorage.getItem('user');
+            try {
+                const user = JSON.parse(userData);
+                if (user?.role === 'CUSTOMER') {
+                    window.location.href = '/login';
+                } else {
+                    window.location.href = '/admin/login';
+                }
+            } catch {
+                window.location.href = '/login';
+            }
         } else if (status === 403) {
             toast.error('You do not have permission to perform this action');
         } else if (status >= 500) {

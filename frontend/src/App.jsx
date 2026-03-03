@@ -4,8 +4,9 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import CustomerLayout from './components/CustomerLayout';
 
-// Lazy-load all pages for code splitting
+// Admin pages (lazy-loaded)
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -16,6 +17,15 @@ const OrderDetail = React.lazy(() => import('./pages/OrderDetail'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
 const StoreProfile = React.lazy(() => import('./pages/StoreProfile'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
+
+// Customer pages (lazy-loaded)
+const CustomerLogin = React.lazy(() => import('./pages/customer/CustomerLogin'));
+const CustomerRegister = React.lazy(() => import('./pages/customer/CustomerRegister'));
+const ProductFeed = React.lazy(() => import('./pages/customer/ProductFeed'));
+const ProductDetail = React.lazy(() => import('./pages/customer/ProductDetail'));
+const CartPage = React.lazy(() => import('./pages/customer/CartPage'));
+const WishlistPage = React.lazy(() => import('./pages/customer/WishlistPage'));
+const MyOrders = React.lazy(() => import('./pages/customer/MyOrders'));
 
 // Full-page loading spinner for lazy-loaded routes
 const PageLoader = () => (
@@ -55,19 +65,38 @@ function App() {
                 />
                 <Suspense fallback={<PageLoader />}>
                     <Routes>
-                        {/* Public routes */}
+                        {/* ── Customer public routes ─────────────────────── */}
                         <Route path="/" element={<Navigate to="/login" replace />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<CustomerLogin />} />
+                        <Route path="/register" element={<CustomerRegister />} />
 
-                        {/* Protected routes */}
-                        <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-                        <Route path="/products" element={<ProtectedRoute><Layout><Products /></Layout></ProtectedRoute>} />
-                        <Route path="/customers" element={<ProtectedRoute><Layout><Customers /></Layout></ProtectedRoute>} />
-                        <Route path="/orders" element={<ProtectedRoute><Layout><Orders /></Layout></ProtectedRoute>} />
-                        <Route path="/orders/:id" element={<ProtectedRoute><Layout><OrderDetail /></Layout></ProtectedRoute>} />
-                        <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
-                        <Route path="/store" element={<ProtectedRoute><Layout><StoreProfile /></Layout></ProtectedRoute>} />
+                        {/* ── Customer protected routes ──────────────────── */}
+                        <Route path="/shop" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><ProductFeed /></CustomerLayout></ProtectedRoute>} />
+                        <Route path="/product/:id" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><ProductDetail /></CustomerLayout></ProtectedRoute>} />
+                        <Route path="/cart" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><CartPage /></CustomerLayout></ProtectedRoute>} />
+                        <Route path="/wishlist" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><WishlistPage /></CustomerLayout></ProtectedRoute>} />
+                        <Route path="/my-orders" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><MyOrders /></CustomerLayout></ProtectedRoute>} />
+
+                        {/* ── Admin auth routes ──────────────────────────── */}
+                        <Route path="/admin/login" element={<Login />} />
+                        <Route path="/admin/register" element={<Register />} />
+
+                        {/* ── Admin protected routes ─────────────────────── */}
+                        <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><Layout><Dashboard /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/products" element={<ProtectedRoute requiredRole="ADMIN"><Layout><Products /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/customers" element={<ProtectedRoute requiredRole="ADMIN"><Layout><Customers /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/orders" element={<ProtectedRoute requiredRole="ADMIN"><Layout><Orders /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/orders/:id" element={<ProtectedRoute requiredRole="ADMIN"><Layout><OrderDetail /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/inventory" element={<ProtectedRoute requiredRole="ADMIN"><Layout><Inventory /></Layout></ProtectedRoute>} />
+                        <Route path="/admin/store" element={<ProtectedRoute requiredRole="ADMIN"><Layout><StoreProfile /></Layout></ProtectedRoute>} />
+
+                        {/* ── Legacy redirects ───────────────────────────── */}
+                        <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+                        <Route path="/products" element={<Navigate to="/admin/products" replace />} />
+                        <Route path="/customers" element={<Navigate to="/admin/customers" replace />} />
+                        <Route path="/orders" element={<Navigate to="/admin/orders" replace />} />
+                        <Route path="/inventory" element={<Navigate to="/admin/inventory" replace />} />
+                        <Route path="/store" element={<Navigate to="/admin/store" replace />} />
 
                         {/* 404 */}
                         <Route path="*" element={<NotFound />} />

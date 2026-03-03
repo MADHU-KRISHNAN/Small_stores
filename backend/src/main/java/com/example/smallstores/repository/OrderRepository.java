@@ -44,4 +44,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                         "GROUP BY oi.product.id, oi.product.name " +
                         "ORDER BY SUM(oi.totalPrice) DESC")
         List<Map<String, Object>> findTopSellingProducts(@Param("storeId") Long storeId, Pageable pageable);
+
+        // ── Customer order history ─────────────────────────────────────────
+        Page<Order> findByCustomerUserIdOrderByCreatedAtDesc(Long customerUserId, Pageable pageable);
 }

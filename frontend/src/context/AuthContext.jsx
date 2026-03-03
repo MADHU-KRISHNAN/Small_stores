@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import { parseLoginResponse } from '../utils/authUtils';
+import { parseLoginResponse, isAdmin, isCustomer } from '../utils/authUtils';
 
 const AuthContext = createContext(null);
 
@@ -14,17 +14,14 @@ export const AuthProvider = ({ children }) => {
 
         if (token && userData) {
             try {
-                // Check if token is expired by decoding the payload
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 if (payload.exp * 1000 > Date.now()) {
                     setUser(JSON.parse(userData));
                 } else {
-                    // Token expired — clear and don't set user
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                 }
             } catch {
-                // Malformed token — clear
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
             }
@@ -32,10 +29,10 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
+    // Admin/Store-owner login
     const login = async (username, password) => {
         const response = await api.post('/auth/login', { username, password });
         const apiResponsePayload = response.data.data ? response.data.data : response.data;
-
         const strictUserData = parseLoginResponse(apiResponsePayload);
 
         localStorage.setItem('token', strictUserData.token);
@@ -44,8 +41,27 @@ export const AuthProvider = ({ children }) => {
         return strictUserData;
     };
 
+    // Admin/Store-owner register
     const register = async (data) => {
         const response = await api.post('/auth/register', data);
+        return response.data;
+    };
+
+    // Customer login
+    const loginCustomer = async (username, password) => {
+        const response = await api.post('/auth/customer/login', { username, password });
+        const apiResponsePayload = response.data.data ? response.data.data : response.data;
+        const strictUserData = parseLoginResponse(apiResponsePayload);
+
+        localStorage.setItem('token', strictUserData.token);
+        localStorage.setItem('user', JSON.stringify(strictUserData));
+        setUser(strictUserData);
+        return strictUserData;
+    };
+
+    // Customer register
+    const registerCustomer = async (data) => {
+        const response = await api.post('/auth/customer/register', data);
         return response.data;
     };
 
@@ -60,7 +76,11 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
+        loginCustomer,
+        registerCustomer,
         logout,
+        isAdmin: () => isAdmin(user),
+        isCustomer: () => isCustomer(user),
     };
 
     return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;

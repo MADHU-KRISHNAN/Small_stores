@@ -40,6 +40,10 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = true) // Customer can be null for walk-ins
     private Customer customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_user_id", nullable = true) // Platform customer who placed the order
+    private CustomerUser customerUser;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();

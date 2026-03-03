@@ -1,5 +1,6 @@
 package com.example.smallstores.security;
 
+import com.example.smallstores.entity.CustomerUser;
 import com.example.smallstores.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -31,6 +32,9 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
+    /**
+     * Build UserDetails from an Admin/StoreOwner User entity
+     */
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
         Long userStoreId = (user.getStore() != null) ? user.getStore().getId() : null;
@@ -40,6 +44,20 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUsername(),
                 user.getPassword(),
                 userStoreId,
+                authorities);
+    }
+
+    /**
+     * Build UserDetails from a CustomerUser entity
+     */
+    public static UserDetailsImpl build(CustomerUser customerUser) {
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+
+        return new UserDetailsImpl(
+                customerUser.getId(),
+                customerUser.getUsername(),
+                customerUser.getPassword(),
+                null, // customers don't belong to a store
                 authorities);
     }
 

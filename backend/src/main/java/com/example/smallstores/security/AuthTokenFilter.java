@@ -34,13 +34,23 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                Long storeId = jwtUtils.extractStoreId(jwt);
+                String role = jwtUtils.getRoleFromJwtToken(jwt);
 
-                if (storeId != null) {
-                    StoreContextHolder.setStoreId(storeId);
+                UserDetails userDetails;
+                if ("CUSTOMER".equals(role)) {
+                    // Load from customer user table
+                    userDetails = userDetailsService.loadCustomerByUsername(username);
+                } else {
+                    // Load from admin/store-owner user table
+                    userDetails = userDetailsService.loadAdminByUsername(username);
+
+                    // Only set store context for admin tokens
+                    Long storeId = jwtUtils.extractStoreId(jwt);
+                    if (storeId != null) {
+                        StoreContextHolder.setStoreId(storeId);
+                    }
                 }
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

@@ -8,9 +8,9 @@
  * {
  *   token: String,          // JWT Bearer token
  *   username: String,       // login username
- *   role: String,           // "ADMIN" or "STORE_OWNER"
- *   storeId: Long,          // extracted from JWT custom claim
- *   storeName: String       // store display name
+ *   role: String,           // "ADMIN", "STORE_OWNER", or "CUSTOMER"
+ *   storeId: Long|null,     // extracted from JWT custom claim (null for customers)
+ *   storeName: String|null  // store display name (null for customers)
  * }
  */
 export const parseLoginResponse = (apiResponse) => {
@@ -22,3 +22,6 @@ export const parseLoginResponse = (apiResponse) => {
         storeName: apiResponse.storeName
     };
 };
+
+export const isAdmin = (user) => user?.role === 'ADMIN' || user?.role === 'STORE_OWNER';
+export const isCustomer = (user) => user?.role === 'CUSTOMER';

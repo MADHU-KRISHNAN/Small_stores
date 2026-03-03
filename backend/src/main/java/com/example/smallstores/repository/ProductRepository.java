@@ -45,4 +45,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
         // Count out-of-stock products
         Long countByStoreIdAndStock(Long storeId, Integer stock);
+
+        // ── Public product feed (cross-store) ──────────────────────────────
+        Page<Product> findByIsActiveTrue(Pageable pageable);
+
+        @Query("SELECT p FROM Product p WHERE p.isActive = true " +
+                        "AND (LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                        "OR LOWER(p.category) LIKE LOWER(CONCAT('%', :search, '%')))")
+        Page<Product> searchActiveProducts(@Param("search") String search, Pageable pageable);
+
+        @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.category = :category")
+        Page<Product> findActiveByCategoryEquals(@Param("category") String category, Pageable pageable);
+
+        @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.category = :category " +
+                        "AND (LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+        Page<Product> searchActiveByCategory(@Param("category") String category,
+                        @Param("search") String search, Pageable pageable);
+
+        @Query("SELECT DISTINCT p.category FROM Product p WHERE p.isActive = true AND p.category IS NOT NULL")
+        List<String> findDistinctActiveCategories();
 }

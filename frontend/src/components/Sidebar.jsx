@@ -16,11 +16,11 @@ export default function Sidebar({ isOpen, onClose }) {
     const { user, logout } = useAuth();
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: HomeIcon },
-        { name: 'Products', path: '/products', icon: ArchiveBoxIcon },
-        { name: 'Inventory', path: '/inventory', icon: ClipboardDocumentListIcon },
-        { name: 'Customers', path: '/customers', icon: UsersIcon },
-        { name: 'Orders', path: '/orders', icon: ShoppingCartIcon },
+        { name: 'Dashboard', path: '/admin/dashboard', icon: HomeIcon },
+        { name: 'Products', path: '/admin/products', icon: ArchiveBoxIcon },
+        { name: 'Inventory', path: '/admin/inventory', icon: ClipboardDocumentListIcon },
+        { name: 'Customers', path: '/admin/customers', icon: UsersIcon },
+        { name: 'Orders', path: '/admin/orders', icon: ShoppingCartIcon },
     ];
 
     return (
@@ -30,7 +30,7 @@ export default function Sidebar({ isOpen, onClose }) {
         >
             {/* Logo */}
             <div className="h-16 flex items-center justify-between px-6 border-b border-surface-700/30">
-                <Link to="/dashboard" className="flex items-center space-x-3 group">
+                <Link to="/admin/dashboard" className="flex items-center space-x-3 group">
                     <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
                         <BuildingStorefrontIcon className="w-5 h-5 text-white" />
                     </div>
@@ -46,7 +46,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-3">Store Management</p>
                 {navItems.map((item, index) => {
                     const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
+                    const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                     return (
                         <Link
                             key={item.name}
@@ -70,7 +70,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
             {/* User section + Logout */}
             <div className="p-4 border-t border-surface-700/30 space-y-3">
-                <Link to="/store" onClick={onClose} className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-surface-800/50 transition-all duration-200 group cursor-pointer">
+                <Link to="/admin/store" onClick={onClose} className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-surface-800/50 transition-all duration-200 group cursor-pointer">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
                         {user?.username?.charAt(0).toUpperCase()}
                     </div>

@@ -47,7 +47,7 @@ export default function Login() {
             if (isLogin) {
                 await login(data.username, data.password);
                 toast.success('Welcome back!');
-                navigate('/dashboard');
+                navigate('/admin/dashboard');
             } else {
                 await registerApi(data);
                 setIsLogin(true);
