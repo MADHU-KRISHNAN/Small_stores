@@ -25,73 +25,86 @@ export default function CustomerRegister() {
         }
     };
 
+    const inputClass = "w-full h-[42px] px-3.5 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100";
+
     return (
-        <div className="min-h-screen bg-surface-950 flex items-center justify-center px-6 py-12">
-            <div className="w-full max-w-lg space-y-8">
-                <div className="text-center">
-                    <div className="flex items-center justify-center space-x-2 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
-                            <BuildingStorefrontIcon className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-xl font-bold text-white">SmallStores</span>
+        <div className="min-h-screen bg-white flex flex-col">
+            <div className="flex justify-center pt-8 pb-3">
+                <Link to="/" className="flex items-center space-x-2.5 group">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-200">
+                        <BuildingStorefrontIcon className="w-5 h-5 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Create your account</h2>
-                    <p className="mt-1 text-surface-400">Start shopping from local stores</p>
-                </div>
+                    <span className="text-2xl font-bold tracking-tight text-gray-900">Small<span className="text-orange-500">Stores</span></span>
+                </Link>
+            </div>
 
-                <form onSubmit={handleSubmit} className="glass-card p-6 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Full Name *</label>
-                            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                className="input-field w-full" placeholder="John Doe" required />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Email *</label>
-                            <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="input-field w-full" placeholder="john@example.com" required />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Username *</label>
-                            <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
-                                className="input-field w-full" placeholder="johndoe" required minLength={3} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Password *</label>
-                            <div className="relative">
-                                <input type={showPassword ? 'text' : 'password'} value={form.password}
-                                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                    className="input-field w-full pr-12" placeholder="Min 6 characters" required minLength={6} />
-                                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-200 text-xs">
-                                    {showPassword ? 'Hide' : 'Show'}
-                                </button>
+            <div className="flex-1 flex items-start justify-center px-4 pt-4 pb-8">
+                <div className="w-full max-w-[460px]">
+                    <div className="rounded-2xl p-7 bg-white border border-gray-200 shadow-sm">
+                        <h1 className="text-[22px] font-semibold text-gray-900 mb-1">Create account</h1>
+                        <p className="text-sm text-gray-400 mb-5">Start shopping from local stores</p>
+
+                        <form onSubmit={handleSubmit} className="space-y-3.5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Full Name *</label>
+                                    <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                        className={inputClass} placeholder="John Doe" required />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Email *</label>
+                                    <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                        className={inputClass} placeholder="john@example.com" required />
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Phone</label>
-                            <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                className="input-field w-full" placeholder="+1234567890" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1">Address</label>
-                            <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
-                                className="input-field w-full" placeholder="123 Main St" />
-                        </div>
-                    </div>
-                    <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-sm font-semibold mt-2">
-                        {loading ? 'Creating account...' : 'Create Account'}
-                    </button>
-                </form>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Username *</label>
+                                    <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
+                                        className={inputClass} placeholder="johndoe" required minLength={3} />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Password *</label>
+                                    <div className="relative">
+                                        <input type={showPassword ? 'text' : 'password'} value={form.password}
+                                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                                            className={`${inputClass} pr-14`} placeholder="Min 6 chars" required minLength={6} />
+                                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-orange-500 hover:text-orange-600 font-medium">
+                                            {showPassword ? 'Hide' : 'Show'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Phone</label>
+                                    <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                        className={inputClass} placeholder="+1234567890" />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Address</label>
+                                    <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
+                                        className={inputClass} placeholder="123 Main St" />
+                                </div>
+                            </div>
+                            <button type="submit" disabled={loading}
+                                className="w-full h-[42px] mt-1 rounded-lg text-sm font-semibold bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-60">
+                                {loading ? 'Creating account...' : 'Create your SmallStores account'}
+                            </button>
+                        </form>
 
-                <p className="text-center text-surface-400 text-sm">
-                    Already have an account?{' '}
-                    <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">Sign in</Link>
-                </p>
+                        <p className="text-[11px] text-gray-400 mt-4 leading-relaxed">
+                            By creating an account, you agree to SmallStores'
+                            <span className="text-orange-500 cursor-pointer hover:underline"> Conditions of Use</span> and
+                            <span className="text-orange-500 cursor-pointer hover:underline"> Privacy Notice</span>.
+                        </p>
+
+                        <div className="border-t border-gray-100 mt-5 pt-4">
+                            <p className="text-[13px] text-gray-500">Already have an account? <Link to="/login" className="text-orange-500 hover:text-orange-600 font-medium">Sign in →</Link></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
