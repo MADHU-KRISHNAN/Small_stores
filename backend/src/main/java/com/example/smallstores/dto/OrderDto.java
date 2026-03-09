@@ -13,6 +13,10 @@ public class OrderDto {
     private String status;
     private Long customerId;
     private String customerName;
+    private Long storeId;
+    private String storeName;
     private String notes;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<OrderItemDto> orderItems;
 }

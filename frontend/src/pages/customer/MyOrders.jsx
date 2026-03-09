@@ -86,11 +86,15 @@ export default function MyOrders() {
 
                                 {/* Footer */}
                                 <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                                    <div className="flex items-center space-x-1 text-xs text-green-600">
-                                        <CheckCircleIcon className="w-3.5 h-3.5" />
-                                        <span>Shipped by SmallStores</span>
+                                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                                        {order.storeName && (
+                                            <span>Sold by <strong className="text-gray-700">{order.storeName}</strong></span>
+                                        )}
                                     </div>
-                                    <Link to="/shop" className="text-xs text-orange-500 hover:text-orange-600 font-medium">Buy again →</Link>
+                                    <Link to={`/my-orders/${order.id}`} className="inline-flex items-center space-x-1 text-xs font-semibold text-orange-500 hover:text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-full transition-all">
+                                        <span>Track Order</span>
+                                        <span>→</span>
+                                    </Link>
                                 </div>
                             </div>
                         );

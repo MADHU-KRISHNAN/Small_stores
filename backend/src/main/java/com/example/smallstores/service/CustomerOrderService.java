@@ -133,6 +133,12 @@ public class CustomerOrderService {
         dto.setStatus(order.getStatus().name());
         dto.setCustomerName(order.getCustomerUser() != null ? order.getCustomerUser().getName() : null);
         dto.setNotes(order.getNotes());
+        if (order.getStore() != null) {
+            dto.setStoreId(order.getStore().getId());
+            dto.setStoreName(order.getStore().getStoreName());
+        }
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setUpdatedAt(order.getUpdatedAt());
 
         List<OrderItemDto> items = order.getOrderItems().stream()
                 .map(item -> {

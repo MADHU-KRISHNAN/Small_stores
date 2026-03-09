@@ -190,6 +190,12 @@ public class OrderServiceImpl implements OrderService {
             dto.setCustomerId(order.getCustomer().getId());
             dto.setCustomerName(order.getCustomer().getName());
         }
+        if (order.getStore() != null) {
+            dto.setStoreId(order.getStore().getId());
+            dto.setStoreName(order.getStore().getStoreName());
+        }
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setUpdatedAt(order.getUpdatedAt());
 
         List<OrderItemDto> items = order.getOrderItems().stream().map(item -> {
             OrderItemDto itemDto = new OrderItemDto();

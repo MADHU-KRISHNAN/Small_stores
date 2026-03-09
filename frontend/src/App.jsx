@@ -26,6 +26,7 @@ const ProductDetail = React.lazy(() => import('./pages/customer/ProductDetail'))
 const CartPage = React.lazy(() => import('./pages/customer/CartPage'));
 const WishlistPage = React.lazy(() => import('./pages/customer/WishlistPage'));
 const MyOrders = React.lazy(() => import('./pages/customer/MyOrders'));
+const OrderTrackingDetail = React.lazy(() => import('./pages/customer/OrderTrackingDetail'));
 
 // Full-page loading spinner for lazy-loaded routes
 const PageLoader = () => (
@@ -76,6 +77,7 @@ function App() {
                         <Route path="/cart" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><CartPage /></CustomerLayout></ProtectedRoute>} />
                         <Route path="/wishlist" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><WishlistPage /></CustomerLayout></ProtectedRoute>} />
                         <Route path="/my-orders" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><MyOrders /></CustomerLayout></ProtectedRoute>} />
+                        <Route path="/my-orders/:id" element={<ProtectedRoute requiredRole="CUSTOMER"><CustomerLayout><OrderTrackingDetail /></CustomerLayout></ProtectedRoute>} />
 
                         {/* ── Admin auth routes ──────────────────────────── */}
                         <Route path="/admin/login" element={<Login />} />
